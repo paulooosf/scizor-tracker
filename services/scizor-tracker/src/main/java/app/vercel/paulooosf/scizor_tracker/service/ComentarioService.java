@@ -5,6 +5,8 @@ import app.vercel.paulooosf.scizor_tracker.model.Bug;
 import app.vercel.paulooosf.scizor_tracker.model.Comentario;
 import app.vercel.paulooosf.scizor_tracker.model.Usuario;
 import app.vercel.paulooosf.scizor_tracker.repository.ComentarioRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -24,8 +26,8 @@ public class ComentarioService {
     }
 
     @Transactional(readOnly = true)
-    public List<Comentario> listarTodos() {
-        return comentarioRepository.findAll();
+    public Page<Comentario> listarTodos(Pageable pageable) {
+        return comentarioRepository.findAll(pageable);
     }
 
     @Transactional(readOnly = true)

@@ -3,6 +3,8 @@ package app.vercel.paulooosf.scizor_tracker.service;
 import app.vercel.paulooosf.scizor_tracker.exception.UsuarioNaoEncontradoException;
 import app.vercel.paulooosf.scizor_tracker.model.Usuario;
 import app.vercel.paulooosf.scizor_tracker.repository.UsuarioRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -18,8 +20,8 @@ public class UsuarioService {
     }
 
     @Transactional(readOnly = true)
-    public List<Usuario> listarTodos() {
-        return usuarioRepository.findAll();
+    public Page<Usuario> listarTodos(Pageable pageable) {
+        return usuarioRepository.findAll(pageable);
     }
 
     @Transactional(readOnly = true)

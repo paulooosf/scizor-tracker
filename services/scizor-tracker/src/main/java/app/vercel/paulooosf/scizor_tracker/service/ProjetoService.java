@@ -3,6 +3,8 @@ package app.vercel.paulooosf.scizor_tracker.service;
 import app.vercel.paulooosf.scizor_tracker.exception.ProjetoNaoEncontradoException;
 import app.vercel.paulooosf.scizor_tracker.model.Projeto;
 import app.vercel.paulooosf.scizor_tracker.repository.ProjetoRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -18,8 +20,8 @@ public class ProjetoService {
     }
 
     @Transactional(readOnly = true)
-    public List<Projeto> listarTodos() {
-        return projetoRepository.findAll();
+    public Page<Projeto> listarTodos(Pageable pageable) {
+        return projetoRepository.findAll(pageable);
     }
 
     @Transactional(readOnly = true)

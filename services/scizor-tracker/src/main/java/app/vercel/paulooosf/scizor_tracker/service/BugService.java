@@ -8,6 +8,8 @@ import app.vercel.paulooosf.scizor_tracker.model.Bug;
 import app.vercel.paulooosf.scizor_tracker.model.Projeto;
 import app.vercel.paulooosf.scizor_tracker.model.Usuario;
 import app.vercel.paulooosf.scizor_tracker.repository.BugRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -27,8 +29,8 @@ public class BugService {
     }
 
     @Transactional(readOnly = true)
-    public List<Bug> listarTodos() {
-        return bugRepository.findAll();
+    public Page<Bug> listarTodos(Pageable pageable) {
+        return bugRepository.findAll(pageable);
     }
 
     @Transactional(readOnly = true)
