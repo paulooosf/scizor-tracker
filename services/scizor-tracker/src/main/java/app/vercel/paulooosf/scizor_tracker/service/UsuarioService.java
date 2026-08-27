@@ -48,8 +48,18 @@ public class UsuarioService {
     public Usuario atualizar(Long id, Usuario usuarioAtualizado) {
         Usuario usuario = buscarPorId(id);
 
+        if (usuarioAtualizado.getEmail() != null && !usuarioAtualizado.getEmail().equals(usuario.getEmail())) {
+            if (usuarioRepository.existsByEmail(usuarioAtualizado.getEmail())) {
+                throw new IllegalArgumentException("Já existe um usuário com o email " + usuarioAtualizado.getEmail());
+            }
+            usuario.setEmail(usuarioAtualizado.getEmail());
+        }
+
         usuario.setNome(usuarioAtualizado.getNome());
-        usuario.setSenha(usuarioAtualizado.getSenha());
+        
+        if (usuarioAtualizado.getSenha() != null && !usuarioAtualizado.getSenha().isBlank()) {
+            usuario.setSenha(usuarioAtualizado.getSenha());
+        }
 
         return usuarioRepository.save(usuario);
     }
