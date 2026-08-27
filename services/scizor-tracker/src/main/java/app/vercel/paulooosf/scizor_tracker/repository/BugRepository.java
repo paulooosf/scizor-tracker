@@ -23,7 +23,7 @@ public interface BugRepository extends JpaRepository<Bug, Long> {
            countQuery = "SELECT COUNT(b) FROM Bug b")
     Page<Bug> findAllComRelacionamentos(Pageable pageable);
 
-    @Query("SELECT b FROM Bug b LEFT JOIN FETCH b.projeto WHERE b.projeto.id = :projetoId")
+    @Query("SELECT b FROM Bug b LEFT JOIN FETCH b.projeto LEFT JOIN FETCH b.usuarioResponsavel WHERE b.projeto.id = :projetoId")
     List<Bug> findByProjetoIdComRelacionamentos(@Param("projetoId") Long projetoId);
 
     @Query("SELECT b FROM Bug b LEFT JOIN FETCH b.projeto LEFT JOIN FETCH b.usuarioResponsavel WHERE b.status = :status")
@@ -32,13 +32,13 @@ public interface BugRepository extends JpaRepository<Bug, Long> {
     @Query("SELECT b FROM Bug b LEFT JOIN FETCH b.projeto LEFT JOIN FETCH b.usuarioResponsavel WHERE b.prioridade = :prioridade")
     List<Bug> findByPrioridadeComRelacionamentos(@Param("prioridade") Prioridade prioridade);
 
-    @Query("SELECT b FROM Bug b LEFT JOIN FETCH b.usuarioResponsavel WHERE b.usuarioResponsavel.id = :usuarioId")
+    @Query("SELECT b FROM Bug b LEFT JOIN FETCH b.projeto LEFT JOIN FETCH b.usuarioResponsavel WHERE b.usuarioResponsavel.id = :usuarioId")
     List<Bug> findByUsuarioResponsavelIdComRelacionamentos(@Param("usuarioId") Long usuarioId);
 
     @Query("SELECT b FROM Bug b LEFT JOIN FETCH b.projeto LEFT JOIN FETCH b.usuarioResponsavel WHERE b.usuarioResponsavel IS NULL")
     List<Bug> buscarBugsSemResponsavelComRelacionamentos();
 
-    @Query("SELECT b FROM Bug b LEFT JOIN FETCH b.projeto WHERE LOWER(b.titulo) LIKE LOWER(CONCAT('%', :termo, '%')) OR LOWER(b.descricao) LIKE LOWER(CONCAT('%', :termo, '%'))")
+    @Query("SELECT b FROM Bug b LEFT JOIN FETCH b.projeto LEFT JOIN FETCH b.usuarioResponsavel WHERE LOWER(b.titulo) LIKE LOWER(CONCAT('%', :termo, '%')) OR LOWER(b.descricao) LIKE LOWER(CONCAT('%', :termo, '%'))")
     List<Bug> buscarPorTermoComRelacionamentos(@Param("termo") String termo);
 
     @Query("SELECT b FROM Bug b LEFT JOIN FETCH b.comentarios WHERE b.id = :id")
