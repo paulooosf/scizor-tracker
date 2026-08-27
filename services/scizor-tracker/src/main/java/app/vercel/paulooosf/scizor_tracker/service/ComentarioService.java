@@ -38,25 +38,25 @@ public class ComentarioService {
 
     @Transactional(readOnly = true)
     public Page<Comentario> listarTodos(Pageable pageable) {
-        return comentarioRepository.findAll(pageable);
+        return comentarioRepository.findAllComRelacionamentos(pageable);
     }
 
     @Transactional(readOnly = true)
     public Comentario buscarPorId(Long id) {
-        return comentarioRepository.findById(id)
+        return comentarioRepository.findByIdComRelacionamentos(id)
             .orElseThrow(() -> new ComentarioNaoEncontradoException(id));
     }
 
     @Transactional(readOnly = true)
     public List<Comentario> buscarPorBug(Long bugId) {
         bugService.buscarPorId(bugId);
-        return comentarioRepository.buscarComentariosPorBugOrdenadosPorData(bugId);
+        return comentarioRepository.buscarComentariosPorBugOrdenadosPorDataComRelacionamentos(bugId);
     }
 
     @Transactional(readOnly = true)
     public List<Comentario> buscarPorUsuario(Long usuarioId) {
         usuarioService.buscarPorId(usuarioId);
-        return comentarioRepository.findByUsuarioId(usuarioId);
+        return comentarioRepository.findByUsuarioIdComRelacionamentos(usuarioId);
     }
 
     @Transactional
