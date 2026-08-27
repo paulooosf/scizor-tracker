@@ -3,23 +3,49 @@ package app.vercel.paulooosf.scizor_tracker.repository;
 import app.vercel.paulooosf.scizor_tracker.enums.Prioridade;
 import app.vercel.paulooosf.scizor_tracker.enums.StatusBug;
 import app.vercel.paulooosf.scizor_tracker.model.Bug;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface BugRepository extends JpaRepository<Bug, Long> {
 
-    List<Bug> findByProjetoId(Long projetoId);
+    @Query("SELECT b FROM Bug b LEFT JOIN FETCH b.projeto LEFT JOIN FETCH b.usuarioResponsavel WHERE b.id = :id")
+    Optional<Bug> findByIdComRelacionamentos(@Param("id") Long id);
 
-    List<Bug> findByStatus(StatusBug status);
+    @Query(value = "SELECT DISTINCT b FROM Bug b LEFT JOIN FETCH b.projeto LEFT JOIN FETCH b.usuarioResponsavel",
+           countQuery = "SELECT COUNT(b) FROM Bug b")
+    Page<Bug> findAllComRelacionamentos(Pageable pageable);
 
-    List<Bug> findByPrioridade(Prioridade prioridade);
+    @Query("SELECT b FROM Bug b LEFT JOIN FETCH b.projeto WHERE b.projeto.id = :projetoId")
+    List<Bug> findByProjetoIdComRelacionamentos(@Param("projetoId") Long projetoId);
 
-    List<Bug> findByUsuarioResponsavelId(Long usuarioId);
+    @Query("SELECT b FROM Bug b LEFT JOIN FETCH b.projeto LEFT JOIN FETCH b.usuarioResponsavel WHERE b.status = :status")
+    List<Bug> findByStatusComRelacionamentos(@Param("status") StatusBug status);
+
+    @Query("SELECT b FROM Bug b LEFT JOIN FETCH b.projeto LEFT JOIN FETCH b.usuarioResponsavel WHERE b.prioridade = :prioridade")
+    List<Bug> findByPrioridadeComRelacionamentos(@Param("prioridade") Prioridade prioridade);
+
+    @Query("SELECT b FROM Bug b LEFT JOIN FETCH b.usuarioResponsavel WHERE b.usuarioResponsavel.id = :usuarioId")
+    List<Bug> findByUsuarioResponsavelIdComRelacionamentos(@Param("usuarioId") Long usuarioId);
+
+    @Query("SELECT b FROM Bug b LEFT JOIN FETCH b.projeto LEFT JOIN FETCH b.usuarioResponsavel WHERE b.usuarioResponsavel IS NULL")
+    List<Bug> buscarBugsSemResponsavelComRelacionamentos();
+
+    @Query("SELECT b FROM Bug b LEFT JOIN FETCH b.projeto WHERE LOWER(b.titulo) LIKE LOWER(CONCAT('%', :termo, '%')) OR LOWER(b.descricao) LIKE LOWER(CONCAT('%', :termo, '%'))")
+    List<Bug> buscarPorTermoComRelacionamentos(@Param("termo") String termo);
+
+    @Query("SELECT b FROM Bug b LEFT JOIN FETCH b.comentarios WHERE b.id = :id")
+    Bug findByIdComComentarios(Long id);
+
+    @Query("SELECT COUNT(b) FROM Bug b WHERE b.projeto.id = :projetoId AND b.status = :status")
+    Long contarBugsPorProjetoEStatus(@Param("projetoId") Long projetoId, @Param("status") StatusBug status);
 
     List<Bug> findByProjetoIdAndStatus(Long projetoId, StatusBug status);
 
@@ -29,16 +55,4 @@ public interface BugRepository extends JpaRepository<Bug, Long> {
         @Param("status") StatusBug status,
         @Param("prioridade") Prioridade prioridade
     );
-
-    @Query("SELECT b FROM Bug b LEFT JOIN FETCH b.comentarios WHERE b.id = :id")
-    Bug findByIdComComentarios(Long id);
-
-    @Query("SELECT b FROM Bug b WHERE b.usuarioResponsavel IS NULL")
-    List<Bug> buscarBugsSemResponsavel();
-
-    @Query("SELECT COUNT(b) FROM Bug b WHERE b.projeto.id = :projetoId AND b.status = :status")
-    Long contarBugsPorProjetoEStatus(@Param("projetoId") Long projetoId, @Param("status") StatusBug status);
-
-    @Query("SELECT b FROM Bug b WHERE LOWER(b.titulo) LIKE LOWER(CONCAT('%', :termo, '%')) OR LOWER(b.descricao) LIKE LOWER(CONCAT('%', :termo, '%'))")
-    List<Bug> buscarPorTermo(@Param("termo") String termo);
 }

@@ -43,12 +43,12 @@ public class BugService {
 
     @Transactional(readOnly = true)
     public Page<Bug> listarTodos(Pageable pageable) {
-        return bugRepository.findAll(pageable);
+        return bugRepository.findAllComRelacionamentos(pageable);
     }
 
     @Transactional(readOnly = true)
     public Bug buscarPorId(Long id) {
-        return bugRepository.findById(id)
+        return bugRepository.findByIdComRelacionamentos(id)
             .orElseThrow(() -> new BugNaoEncontradoException(id));
     }
 
@@ -64,33 +64,33 @@ public class BugService {
     @Transactional(readOnly = true)
     public List<Bug> buscarPorProjeto(Long projetoId) {
         projetoService.buscarPorId(projetoId);
-        return bugRepository.findByProjetoId(projetoId);
+        return bugRepository.findByProjetoIdComRelacionamentos(projetoId);
     }
 
     @Transactional(readOnly = true)
     public List<Bug> buscarPorStatus(StatusBug status) {
-        return bugRepository.findByStatus(status);
+        return bugRepository.findByStatusComRelacionamentos(status);
     }
 
     @Transactional(readOnly = true)
     public List<Bug> buscarPorPrioridade(Prioridade prioridade) {
-        return bugRepository.findByPrioridade(prioridade);
+        return bugRepository.findByPrioridadeComRelacionamentos(prioridade);
     }
 
     @Transactional(readOnly = true)
     public List<Bug> buscarPorResponsavel(Long usuarioId) {
         usuarioService.buscarPorId(usuarioId);
-        return bugRepository.findByUsuarioResponsavelId(usuarioId);
+        return bugRepository.findByUsuarioResponsavelIdComRelacionamentos(usuarioId);
     }
 
     @Transactional(readOnly = true)
     public List<Bug> buscarSemResponsavel() {
-        return bugRepository.buscarBugsSemResponsavel();
+        return bugRepository.buscarBugsSemResponsavelComRelacionamentos();
     }
 
     @Transactional(readOnly = true)
     public List<Bug> buscarPorTermo(String termo) {
-        return bugRepository.buscarPorTermo(termo);
+        return bugRepository.buscarPorTermoComRelacionamentos(termo);
     }
 
     @Transactional
