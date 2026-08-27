@@ -1,6 +1,9 @@
 package app.vercel.paulooosf.scizor_tracker.service;
 
+import app.vercel.paulooosf.scizor_tracker.dto.evento.ComentarioAdicionadoEvento;
 import app.vercel.paulooosf.scizor_tracker.exception.ComentarioNaoEncontradoException;
+import app.vercel.paulooosf.scizor_tracker.messaging.TopicosKafka;
+import app.vercel.paulooosf.scizor_tracker.messaging.publicador.PublicadorEvento;
 import app.vercel.paulooosf.scizor_tracker.model.Bug;
 import app.vercel.paulooosf.scizor_tracker.model.Comentario;
 import app.vercel.paulooosf.scizor_tracker.model.Usuario;
@@ -10,6 +13,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -18,11 +22,18 @@ public class ComentarioService {
     private final ComentarioRepository comentarioRepository;
     private final BugService bugService;
     private final UsuarioService usuarioService;
+    private final PublicadorEvento publicadorEvento;
 
-    public ComentarioService(ComentarioRepository comentarioRepository, BugService bugService, UsuarioService usuarioService) {
+    public ComentarioService(
+        ComentarioRepository comentarioRepository,
+        BugService bugService,
+        UsuarioService usuarioService,
+        PublicadorEvento publicadorEvento
+    ) {
         this.comentarioRepository = comentarioRepository;
         this.bugService = bugService;
         this.usuarioService = usuarioService;
+        this.publicadorEvento = publicadorEvento;
     }
 
     @Transactional(readOnly = true)
@@ -55,8 +66,21 @@ public class ComentarioService {
 
         comentario.setBug(bug);
         comentario.setUsuario(usuario);
+        comentario.setDataComentario(LocalDateTime.now());
 
-        return comentarioRepository.save(comentario);
+        Comentario comentarioSalvo = comentarioRepository.save(comentario);
+        publicadorEvento.publicar(
+            TopicosKafka.COMENTARIO_ADICIONADO,
+            String.valueOf(bug.getId()),
+            new ComentarioAdicionadoEvento(
+                bug.getId(),
+                comentarioSalvo.getId(),
+                comentarioSalvo.getTexto(),
+                usuario.getEmail(),
+                bug.getUsuarioResponsavel() != null ? bug.getUsuarioResponsavel().getEmail() : null
+            )
+        );
+        return comentarioSalvo;
     }
 
     @Transactional
