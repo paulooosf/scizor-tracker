@@ -87,14 +87,14 @@ public class ComentarioController {
         @ApiResponse(responseCode = "404", description = "Bug não encontrado", content = @Content)
     })
     @GetMapping("/bug/{bugId}")
-    public ResponseEntity<List<ComentarioSaidaDto>> buscarPorBug(
+    public ResponseEntity<Page<ComentarioSaidaDto>> buscarPorBug(
         @Parameter(description = "ID do bug", required = true, example = "1")
-        @PathVariable Long bugId
+        @PathVariable Long bugId,
+        @Parameter(description = "Parâmetros de paginação (page, size, sort)", example = "page=0&size=10&sort=dataComentario,desc")
+        Pageable pageable
     ) {
-        List<ComentarioSaidaDto> comentarios = comentarioService.buscarPorBug(bugId)
-            .stream()
-            .map(ComentarioSaidaDto::new)
-            .toList();
+        Page<ComentarioSaidaDto> comentarios = comentarioService.buscarPorBug(bugId, pageable)
+            .map(ComentarioSaidaDto::new);
         return ResponseEntity.ok(comentarios);
     }
 
@@ -108,14 +108,14 @@ public class ComentarioController {
         @ApiResponse(responseCode = "404", description = "Usuário não encontrado", content = @Content)
     })
     @GetMapping("/usuario/{usuarioId}")
-    public ResponseEntity<List<ComentarioSaidaDto>> buscarPorUsuario(
+    public ResponseEntity<Page<ComentarioSaidaDto>> buscarPorUsuario(
         @Parameter(description = "ID do usuário", required = true, example = "1")
-        @PathVariable Long usuarioId
+        @PathVariable Long usuarioId,
+        @Parameter(description = "Parâmetros de paginação (page, size, sort)", example = "page=0&size=10&sort=dataComentario,desc")
+        Pageable pageable
     ) {
-        List<ComentarioSaidaDto> comentarios = comentarioService.buscarPorUsuario(usuarioId)
-            .stream()
-            .map(ComentarioSaidaDto::new)
-            .toList();
+        Page<ComentarioSaidaDto> comentarios = comentarioService.buscarPorUsuario(usuarioId, pageable)
+            .map(ComentarioSaidaDto::new);
         return ResponseEntity.ok(comentarios);
     }
 

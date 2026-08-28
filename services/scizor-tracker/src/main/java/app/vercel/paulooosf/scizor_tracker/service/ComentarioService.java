@@ -48,15 +48,15 @@ public class ComentarioService {
     }
 
     @Transactional(readOnly = true)
-    public List<Comentario> buscarPorBug(Long bugId) {
+    public Page<Comentario> buscarPorBug(Long bugId, Pageable pageable) {
         bugService.buscarPorId(bugId);
-        return comentarioRepository.buscarComentariosPorBugOrdenadosPorDataComRelacionamentos(bugId);
+        return comentarioRepository.findByBugId(bugId, pageable);
     }
 
     @Transactional(readOnly = true)
-    public List<Comentario> buscarPorUsuario(Long usuarioId) {
+    public Page<Comentario> buscarPorUsuario(Long usuarioId, Pageable pageable) {
         usuarioService.buscarPorId(usuarioId);
-        return comentarioRepository.findByUsuarioIdComRelacionamentos(usuarioId);
+        return comentarioRepository.findByUsuarioId(usuarioId, pageable);
     }
 
     @Transactional
