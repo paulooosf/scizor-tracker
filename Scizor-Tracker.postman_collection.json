@@ -1,0 +1,815 @@
+{
+	"info": {
+		"_postman_id": "scizor-tracker-api",
+		"name": "Scizor Tracker API",
+		"description": "Coleção completa de testes da API Scizor Tracker com JWT e eventos Kafka",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"auth": {
+		"type": "bearer",
+		"bearer": [
+			{
+				"key": "token",
+				"value": "{{token}}",
+				"type": "string"
+			}
+		]
+	},
+	"item": [
+		{
+			"name": "Autenticacao",
+			"item": [
+				{
+					"name": "Login Admin",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 200) {",
+									"    var jsonData = pm.response.json();",
+									"    pm.collectionVariables.set(\"token\", jsonData.token);",
+									"    console.log(\"✅ Token salvo automaticamente!\");",
+									"    console.log(\"Token:\", jsonData.token.substring(0, 30) + \"...\");",
+									"} else {",
+									"    console.log(\"❌ Erro no login:\", pm.response.text());",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"email\": \"admin@scizor.com\",\n  \"senha\": \"admin123\"\n}"
+						},
+						"url": "http://localhost:8080/api/autenticar/login",
+						"description": "Login como ADMIN - Permissões totais"
+					}
+				},
+				{
+					"name": "Login Usuario Comum",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 200) {",
+									"    var jsonData = pm.response.json();",
+									"    pm.collectionVariables.set(\"token\", jsonData.token);",
+									"    console.log(\"✅ Token salvo automaticamente!\");",
+									"    console.log(\"Token:\", jsonData.token.substring(0, 30) + \"...\");",
+									"} else {",
+									"    console.log(\"❌ Erro no login:\", pm.response.text());",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"email\": \"joao.silva@example.com\",\n  \"senha\": \"senha123\"\n}"
+						},
+						"url": "http://localhost:8080/api/autenticar/login",
+						"description": "Login como USER - Apenas leitura"
+					}
+				},
+				{
+					"name": "Login Invalido (Teste Erro)",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"email\": \"admin@scizor.com\",\n  \"senha\": \"senhaErrada\"\n}"
+						},
+						"url": "http://localhost:8080/api/autenticar/login",
+						"description": "Teste de credenciais inválidas - Deve retornar 'Email e/ou senha incorretos'"
+					}
+				},
+				{
+					"name": "Solicitar Redefinicao de Senha",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"email\": \"joao.silva@example.com\"\n}"
+						},
+						"url": "http://localhost:8080/api/autenticar/esqueci-senha",
+						"description": "Gera token de redefinição de senha (15min). Em produção será enviado por email."
+					}
+				},
+				{
+					"name": "Redefinir Senha",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"token\": \"TOKEN_GERADO_NO_PASSO_ANTERIOR\",\n  \"senha\": \"novaSenha123\"\n}"
+						},
+						"url": "http://localhost:8080/api/autenticar/redefinir-senha",
+						"description": "Redefine senha usando token. Substitua TOKEN_GERADO_NO_PASSO_ANTERIOR pelo token recebido em 'Solicitar Redefinicao de Senha'."
+					}
+				}
+			],
+			"description": "Endpoints de autenticação JWT e redefinição de senha"
+		},
+		{
+			"name": "Usuarios",
+			"item": [
+				{
+					"name": "Listar Todos Usuarios",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8080/api/usuarios?page=0&size=10",
+							"protocol": "http",
+							"host": ["localhost"],
+							"port": "8080",
+							"path": ["api", "usuarios"],
+							"query": [
+								{"key": "page", "value": "0"},
+								{"key": "size", "value": "10"}
+							]
+						},
+						"description": "🔒 Requer autenticação (USER ou ADMIN)"
+					}
+				},
+				{
+					"name": "Buscar Usuario por ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": "http://localhost:8080/api/usuarios/1",
+						"description": "🔒 Requer autenticação (USER ou ADMIN)"
+					}
+				},
+				{
+					"name": "Criar Usuario",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [{"key": "Content-Type", "value": "application/json"}],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"nome\": \"Paulo Ferreira\",\n  \"email\": \"paulo@email.com\",\n  \"senha\": \"senha123\"\n}"
+						},
+						"url": "http://localhost:8080/api/usuarios",
+						"description": "✅ Público (criação de conta)"
+					}
+				},
+				{
+					"name": "Atualizar Usuario",
+					"request": {
+						"method": "PUT",
+						"header": [{"key": "Content-Type", "value": "application/json"}],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"nome\": \"Paulo Ferreira Silva\",\n  \"email\": \"paulo@email.com\",\n  \"senha\": \"novaSenha123\"\n}"
+						},
+						"url": "http://localhost:8080/api/usuarios/1",
+						"description": "🔐 Requer ADMIN"
+					}
+				},
+				{
+					"name": "Deletar Usuario",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": "http://localhost:8080/api/usuarios/1",
+						"description": "🔐 Requer ADMIN"
+					}
+				}
+			]
+		},
+		{
+			"name": "Projetos",
+			"item": [
+				{
+					"name": "Listar Todos Projetos",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8080/api/projetos?page=0&size=10",
+							"protocol": "http",
+							"host": ["localhost"],
+							"port": "8080",
+							"path": ["api", "projetos"],
+							"query": [
+								{"key": "page", "value": "0"},
+								{"key": "size", "value": "10"}
+							]
+						},
+						"description": "🔒 Requer autenticação (USER ou ADMIN)"
+					}
+				},
+				{
+					"name": "Buscar Projeto por ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": "http://localhost:8080/api/projetos/1",
+						"description": "🔒 Requer autenticação (USER ou ADMIN)"
+					}
+				},
+				{
+					"name": "Criar Projeto",
+					"request": {
+						"method": "POST",
+						"header": [{"key": "Content-Type", "value": "application/json"}],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"nome\": \"Sistema E-commerce\",\n  \"descricao\": \"Plataforma de vendas online\"\n}"
+						},
+						"url": "http://localhost:8080/api/projetos",
+						"description": "🔐 Requer ADMIN"
+					}
+				},
+				{
+					"name": "Buscar Projetos por Nome",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8080/api/projetos/buscar?nome=Sistema",
+							"protocol": "http",
+							"host": ["localhost"],
+							"port": "8080",
+							"path": ["api", "projetos", "buscar"],
+							"query": [{"key": "nome", "value": "Sistema"}]
+						},
+						"description": "🔒 Requer autenticação (USER ou ADMIN)"
+					}
+				},
+				{
+					"name": "Atualizar Projeto",
+					"request": {
+						"method": "PUT",
+						"header": [{"key": "Content-Type", "value": "application/json"}],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"nome\": \"Sistema E-commerce Atualizado\",\n  \"descricao\": \"Nova descrição do projeto\"\n}"
+						},
+						"url": "http://localhost:8080/api/projetos/1",
+						"description": "🔐 Requer ADMIN"
+					}
+				},
+				{
+					"name": "Deletar Projeto",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": "http://localhost:8080/api/projetos/1",
+						"description": "🔐 Requer ADMIN"
+					}
+				}
+			]
+		},
+		{
+			"name": "Bugs",
+			"item": [
+				{
+					"name": "Listar Todos Bugs",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8080/api/bugs?page=0&size=10",
+							"protocol": "http",
+							"host": ["localhost"],
+							"port": "8080",
+							"path": ["api", "bugs"],
+							"query": [
+								{"key": "page", "value": "0"},
+								{"key": "size", "value": "10"}
+							]
+						},
+						"description": "🔒 Requer autenticação (USER ou ADMIN)"
+					}
+				},
+				{
+					"name": "Buscar Bug por ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": "http://localhost:8080/api/bugs/1",
+						"description": "🔒 Requer autenticação (USER ou ADMIN)"
+					}
+				},
+				{
+					"name": "[KAFKA] Criar Bug Normal",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status 201 Created\", function () {",
+									"    pm.response.to.have.status(201);",
+									"});",
+									"console.log(\"✅ Evento bug.criado publicado!\");"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [{"key": "Content-Type", "value": "application/json"}],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"titulo\": \"Erro ao processar pagamento\",\n  \"descricao\": \"Sistema retorna erro 500 ao finalizar compra\",\n  \"prioridade\": \"ALTA\"\n}"
+						},
+						"url": {
+							"raw": "http://localhost:8080/api/bugs?projetoId=1",
+							"protocol": "http",
+							"host": ["localhost"],
+							"port": "8080",
+							"path": ["api", "bugs"],
+							"query": [{"key": "projetoId", "value": "1"}]
+						},
+						"description": "🔐 Requer ADMIN | Publica evento bug.criado"
+					}
+				},
+				{
+					"name": "[KAFKA] Criar Bug CRITICO",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status 201 Created\", function () {",
+									"    pm.response.to.have.status(201);",
+									"});",
+									"console.log(\"✅ Evento bug.criado publicado!\");",
+									"console.log(\"✅ Evento bug.critico republicado!\");"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [{"key": "Content-Type", "value": "application/json"}],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"titulo\": \"Sistema completamente inoperante\",\n  \"descricao\": \"Nenhum usuário consegue fazer login\",\n  \"prioridade\": \"CRITICA\"\n}"
+						},
+						"url": {
+							"raw": "http://localhost:8080/api/bugs?projetoId=1",
+							"protocol": "http",
+							"host": ["localhost"],
+							"port": "8080",
+							"path": ["api", "bugs"],
+							"query": [{"key": "projetoId", "value": "1"}]
+						},
+						"description": "🔐 Requer ADMIN | Publica 2 eventos: bug.criado + bug.critico"
+					}
+				},
+				{
+					"name": "[KAFKA] Atualizar Status do Bug",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status 200 OK\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"console.log(\"✅ Evento bug.status.alterado publicado!\");"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "PATCH",
+						"header": [{"key": "Content-Type", "value": "application/json"}],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"status\": \"EM_ANDAMENTO\"\n}"
+						},
+						"url": "http://localhost:8080/api/bugs/1/status",
+						"description": "🔐 Requer ADMIN | Publica evento bug.status.alterado"
+					}
+				},
+				{
+					"name": "[KAFKA] Atribuir Responsavel",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status 200 OK\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"console.log(\"✅ Evento bug.responsavel.atribuido publicado!\");"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"url": "http://localhost:8080/api/bugs/1/responsavel/1",
+						"description": "🔐 Requer ADMIN | Publica evento bug.responsavel.atribuido"
+					}
+				},
+				{
+					"name": "Remover Responsavel",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": "http://localhost:8080/api/bugs/1/responsavel",
+						"description": "🔐 Requer ADMIN"
+					}
+				},
+				{
+					"name": "Buscar Bugs por Projeto",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": "http://localhost:8080/api/bugs/projeto/1",
+						"description": "🔒 Requer autenticação (USER ou ADMIN)"
+					}
+				},
+				{
+					"name": "Buscar Bugs por Status",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": "http://localhost:8080/api/bugs/status/ABERTO",
+						"description": "🔒 Requer autenticação (USER ou ADMIN)"
+					}
+				},
+				{
+					"name": "Buscar Bugs por Prioridade",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": "http://localhost:8080/api/bugs/prioridade/CRITICA",
+						"description": "🔒 Requer autenticação (USER ou ADMIN)"
+					}
+				},
+				{
+					"name": "Buscar Bugs Sem Responsavel",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": "http://localhost:8080/api/bugs/sem-responsavel",
+						"description": "🔒 Requer autenticação (USER ou ADMIN)"
+					}
+				},
+				{
+					"name": "Buscar Bugs por Termo",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8080/api/bugs/buscar?termo=pagamento",
+							"protocol": "http",
+							"host": ["localhost"],
+							"port": "8080",
+							"path": ["api", "bugs", "buscar"],
+							"query": [{"key": "termo", "value": "pagamento"}]
+						},
+						"description": "🔒 Requer autenticação (USER ou ADMIN)"
+					}
+				},
+				{
+					"name": "Atualizar Bug",
+					"request": {
+						"method": "PUT",
+						"header": [{"key": "Content-Type", "value": "application/json"}],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"titulo\": \"Erro ao processar pagamento - ATUALIZADO\",\n  \"descricao\": \"Descrição atualizada do bug\",\n  \"prioridade\": \"CRITICA\"\n}"
+						},
+						"url": "http://localhost:8080/api/bugs/1",
+						"description": "🔐 Requer ADMIN"
+					}
+				},
+				{
+					"name": "Deletar Bug",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": "http://localhost:8080/api/bugs/1",
+						"description": "🔐 Requer ADMIN"
+					}
+				}
+			]
+		},
+		{
+			"name": "Comentarios",
+			"item": [
+				{
+					"name": "Listar Todos Comentarios",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8080/api/comentarios?page=0&size=10",
+							"protocol": "http",
+							"host": ["localhost"],
+							"port": "8080",
+							"path": ["api", "comentarios"],
+							"query": [
+								{"key": "page", "value": "0"},
+								{"key": "size", "value": "10"}
+							]
+						},
+						"description": "🔒 Requer autenticação (USER ou ADMIN)"
+					}
+				},
+				{
+					"name": "Buscar Comentario por ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": "http://localhost:8080/api/comentarios/1",
+						"description": "🔒 Requer autenticação (USER ou ADMIN)"
+					}
+				},
+				{
+					"name": "[KAFKA] Criar Comentario",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status 201 Created\", function () {",
+									"    pm.response.to.have.status(201);",
+									"});",
+									"console.log(\"✅ Evento comentario.adicionado publicado!\");"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [{"key": "Content-Type", "value": "application/json"}],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"texto\": \"Consegui reproduzir o bug, problema está na integração com gateway de pagamento\"\n}"
+						},
+						"url": {
+							"raw": "http://localhost:8080/api/comentarios?bugId=1&usuarioId=1",
+							"protocol": "http",
+							"host": ["localhost"],
+							"port": "8080",
+							"path": ["api", "comentarios"],
+							"query": [
+								{"key": "bugId", "value": "1"},
+								{"key": "usuarioId", "value": "1"}
+							]
+						},
+						"description": "🔐 Requer ADMIN | Publica evento comentario.adicionado"
+					}
+				},
+				{
+					"name": "Buscar Comentarios por Bug",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": "http://localhost:8080/api/comentarios/bug/1",
+						"description": "🔒 Requer autenticação (USER ou ADMIN)"
+					}
+				},
+				{
+					"name": "Buscar Comentarios por Usuario",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": "http://localhost:8080/api/comentarios/usuario/1",
+						"description": "🔒 Requer autenticação (USER ou ADMIN)"
+					}
+				},
+				{
+					"name": "Atualizar Comentario",
+					"request": {
+						"method": "PUT",
+						"header": [{"key": "Content-Type", "value": "application/json"}],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"texto\": \"Comentário atualizado com novas informações\"\n}"
+						},
+						"url": "http://localhost:8080/api/comentarios/1",
+						"description": "🔐 Requer ADMIN"
+					}
+				},
+				{
+					"name": "Deletar Comentario",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": "http://localhost:8080/api/comentarios/1",
+						"description": "🔐 Requer ADMIN"
+					}
+				}
+			]
+		},
+		{
+			"name": "Fluxo Completo Kafka",
+			"item": [
+				{
+					"name": "0. Login Admin (obrigatório)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 200) {",
+									"    var jsonData = pm.response.json();",
+									"    pm.collectionVariables.set(\"token\", jsonData.token);",
+									"    console.log(\"✅ Token ADMIN salvo! Pronto para executar operações.\");",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [{"key": "Content-Type", "value": "application/json"}],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"email\": \"admin@scizor.com\",\n  \"senha\": \"admin123\"\n}"
+						},
+						"url": "http://localhost:8080/api/autenticar/login",
+						"description": "✅ Público | Execute PRIMEIRO para obter token ADMIN"
+					}
+				},
+				{
+					"name": "1. Criar Usuario",
+					"request": {
+						"method": "POST",
+						"header": [{"key": "Content-Type", "value": "application/json"}],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"nome\": \"Dev Tester\",\n  \"email\": \"dev@scizor.com\",\n  \"senha\": \"senha123\"\n}"
+						},
+						"url": "http://localhost:8080/api/usuarios",
+						"description": "🔐 Requer ADMIN"
+					}
+				},
+				{
+					"name": "2. Criar Projeto",
+					"request": {
+						"method": "POST",
+						"header": [{"key": "Content-Type", "value": "application/json"}],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"nome\": \"API Gateway\",\n  \"descricao\": \"Sistema de gateway para microserviços\"\n}"
+						},
+						"url": "http://localhost:8080/api/projetos",
+						"description": "🔐 Requer ADMIN"
+					}
+				},
+				{
+					"name": "3. Criar Bug CRITICO (2 eventos)",
+					"request": {
+						"method": "POST",
+						"header": [{"key": "Content-Type", "value": "application/json"}],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"titulo\": \"Sistema fora do ar\",\n  \"descricao\": \"API Gateway não responde requisições\",\n  \"prioridade\": \"CRITICA\"\n}"
+						},
+						"url": {
+							"raw": "http://localhost:8080/api/bugs?projetoId=1",
+							"protocol": "http",
+							"host": ["localhost"],
+							"port": "8080",
+							"path": ["api", "bugs"],
+							"query": [{"key": "projetoId", "value": "1"}]
+						},
+						"description": "🔐 Requer ADMIN | Publica bug.criado + bug.critico"
+					}
+				},
+				{
+					"name": "4. Atribuir Responsavel (evento)",
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"url": "http://localhost:8080/api/bugs/1/responsavel/1",
+						"description": "🔐 Requer ADMIN | Publica bug.responsavel.atribuido"
+					}
+				},
+				{
+					"name": "5. Mudar Status para EM_ANDAMENTO (evento)",
+					"request": {
+						"method": "PATCH",
+						"header": [{"key": "Content-Type", "value": "application/json"}],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"status\": \"EM_ANDAMENTO\"\n}"
+						},
+						"url": "http://localhost:8080/api/bugs/1/status",
+						"description": "🔐 Requer ADMIN | Publica bug.status.alterado"
+					}
+				},
+				{
+					"name": "6. Adicionar Comentario (evento)",
+					"request": {
+						"method": "POST",
+						"header": [{"key": "Content-Type", "value": "application/json"}],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"texto\": \"Problema identificado no servidor Nginx\"\n}"
+						},
+						"url": {
+							"raw": "http://localhost:8080/api/comentarios?bugId=1&usuarioId=1",
+							"protocol": "http",
+							"host": ["localhost"],
+							"port": "8080",
+							"path": ["api", "comentarios"],
+							"query": [
+								{"key": "bugId", "value": "1"},
+								{"key": "usuarioId", "value": "1"}
+							]
+						},
+						"description": "🔐 Requer ADMIN | Publica comentario.adicionado"
+					}
+				},
+				{
+					"name": "7. Mudar Status para RESOLVIDO (evento)",
+					"request": {
+						"method": "PATCH",
+						"header": [{"key": "Content-Type", "value": "application/json"}],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"status\": \"RESOLVIDO\"\n}"
+						},
+						"url": "http://localhost:8080/api/bugs/1/status",
+						"description": "🔐 Requer ADMIN | Publica bug.status.alterado"
+					}
+				}
+			],
+			"description": "Fluxo completo testando todos os eventos Kafka em sequência"
+		}
+	],
+	"variable": [
+		{
+			"key": "token",
+			"value": "",
+			"type": "string"
+		}
+	]
+}
