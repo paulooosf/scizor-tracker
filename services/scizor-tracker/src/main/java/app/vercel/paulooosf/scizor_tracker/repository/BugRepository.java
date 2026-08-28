@@ -23,6 +23,30 @@ public interface BugRepository extends JpaRepository<Bug, Long> {
            countQuery = "SELECT COUNT(b) FROM Bug b")
     Page<Bug> findAllComRelacionamentos(Pageable pageable);
 
+    @Query(value = "SELECT b FROM Bug b LEFT JOIN FETCH b.projeto LEFT JOIN FETCH b.usuarioResponsavel WHERE b.projeto.id = :projetoId",
+           countQuery = "SELECT COUNT(b) FROM Bug b WHERE b.projeto.id = :projetoId")
+    Page<Bug> findByProjetoId(@Param("projetoId") Long projetoId, Pageable pageable);
+
+    @Query(value = "SELECT b FROM Bug b LEFT JOIN FETCH b.projeto LEFT JOIN FETCH b.usuarioResponsavel WHERE b.status = :status",
+           countQuery = "SELECT COUNT(b) FROM Bug b WHERE b.status = :status")
+    Page<Bug> findByStatus(@Param("status") StatusBug status, Pageable pageable);
+
+    @Query(value = "SELECT b FROM Bug b LEFT JOIN FETCH b.projeto LEFT JOIN FETCH b.usuarioResponsavel WHERE b.prioridade = :prioridade",
+           countQuery = "SELECT COUNT(b) FROM Bug b WHERE b.prioridade = :prioridade")
+    Page<Bug> findByPrioridade(@Param("prioridade") Prioridade prioridade, Pageable pageable);
+
+    @Query(value = "SELECT b FROM Bug b LEFT JOIN FETCH b.projeto LEFT JOIN FETCH b.usuarioResponsavel WHERE b.usuarioResponsavel.id = :usuarioId",
+           countQuery = "SELECT COUNT(b) FROM Bug b WHERE b.usuarioResponsavel.id = :usuarioId")
+    Page<Bug> findByUsuarioResponsavelId(@Param("usuarioId") Long usuarioId, Pageable pageable);
+
+    @Query(value = "SELECT b FROM Bug b LEFT JOIN FETCH b.projeto LEFT JOIN FETCH b.usuarioResponsavel WHERE b.usuarioResponsavel IS NULL",
+           countQuery = "SELECT COUNT(b) FROM Bug b WHERE b.usuarioResponsavel IS NULL")
+    Page<Bug> findByUsuarioResponsavelIsNull(Pageable pageable);
+
+    @Query(value = "SELECT b FROM Bug b LEFT JOIN FETCH b.projeto LEFT JOIN FETCH b.usuarioResponsavel WHERE LOWER(b.titulo) LIKE LOWER(CONCAT('%', :termo, '%')) OR LOWER(b.descricao) LIKE LOWER(CONCAT('%', :termo, '%'))",
+           countQuery = "SELECT COUNT(b) FROM Bug b WHERE LOWER(b.titulo) LIKE LOWER(CONCAT('%', :termo, '%')) OR LOWER(b.descricao) LIKE LOWER(CONCAT('%', :termo, '%'))")
+    Page<Bug> buscarPorTermo(@Param("termo") String termo, Pageable pageable);
+
     @Query("SELECT b FROM Bug b LEFT JOIN FETCH b.projeto LEFT JOIN FETCH b.usuarioResponsavel WHERE b.projeto.id = :projetoId")
     List<Bug> findByProjetoIdComRelacionamentos(@Param("projetoId") Long projetoId);
 

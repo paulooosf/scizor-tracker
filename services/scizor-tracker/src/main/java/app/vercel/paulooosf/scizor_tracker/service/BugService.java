@@ -62,35 +62,35 @@ public class BugService {
     }
 
     @Transactional(readOnly = true)
-    public List<Bug> buscarPorProjeto(Long projetoId) {
+    public Page<Bug> buscarPorProjeto(Long projetoId, Pageable pageable) {
         projetoService.buscarPorId(projetoId);
-        return bugRepository.findByProjetoIdComRelacionamentos(projetoId);
+        return bugRepository.findByProjetoId(projetoId, pageable);
     }
 
     @Transactional(readOnly = true)
-    public List<Bug> buscarPorStatus(StatusBug status) {
-        return bugRepository.findByStatusComRelacionamentos(status);
+    public Page<Bug> buscarPorStatus(StatusBug status, Pageable pageable) {
+        return bugRepository.findByStatus(status, pageable);
     }
 
     @Transactional(readOnly = true)
-    public List<Bug> buscarPorPrioridade(Prioridade prioridade) {
-        return bugRepository.findByPrioridadeComRelacionamentos(prioridade);
+    public Page<Bug> buscarPorPrioridade(Prioridade prioridade, Pageable pageable) {
+        return bugRepository.findByPrioridade(prioridade, pageable);
     }
 
     @Transactional(readOnly = true)
-    public List<Bug> buscarPorResponsavel(Long usuarioId) {
+    public Page<Bug> buscarPorResponsavel(Long usuarioId, Pageable pageable) {
         usuarioService.buscarPorId(usuarioId);
-        return bugRepository.findByUsuarioResponsavelIdComRelacionamentos(usuarioId);
+        return bugRepository.findByUsuarioResponsavelId(usuarioId, pageable);
     }
 
     @Transactional(readOnly = true)
-    public List<Bug> buscarSemResponsavel() {
-        return bugRepository.buscarBugsSemResponsavelComRelacionamentos();
+    public Page<Bug> buscarSemResponsavel(Pageable pageable) {
+        return bugRepository.findByUsuarioResponsavelIsNull(pageable);
     }
 
     @Transactional(readOnly = true)
-    public List<Bug> buscarPorTermo(String termo) {
-        return bugRepository.buscarPorTermoComRelacionamentos(termo);
+    public Page<Bug> buscarPorTermo(String termo, Pageable pageable) {
+        return bugRepository.buscarPorTermo(termo, pageable);
     }
 
     @Transactional

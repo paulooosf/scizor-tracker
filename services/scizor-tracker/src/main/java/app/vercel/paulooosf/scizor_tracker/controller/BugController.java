@@ -92,14 +92,14 @@ public class BugController {
         @ApiResponse(responseCode = "404", description = "Projeto não encontrado", content = @Content)
     })
     @GetMapping("/projeto/{projetoId}")
-    public ResponseEntity<List<BugSaidaDto>> buscarPorProjeto(
+    public ResponseEntity<Page<BugSaidaDto>> buscarPorProjeto(
         @Parameter(description = "ID do projeto", required = true, example = "1")
-        @PathVariable Long projetoId
+        @PathVariable Long projetoId,
+        @Parameter(description = "Parâmetros de paginação (page, size, sort)", example = "page=0&size=10&sort=id,desc")
+        Pageable pageable
     ) {
-        List<BugSaidaDto> bugs = bugService.buscarPorProjeto(projetoId)
-            .stream()
-            .map(BugSaidaDto::new)
-            .toList();
+        Page<BugSaidaDto> bugs = bugService.buscarPorProjeto(projetoId, pageable)
+            .map(BugSaidaDto::new);
         return ResponseEntity.ok(bugs);
     }
 
@@ -113,16 +113,16 @@ public class BugController {
         @ApiResponse(responseCode = "400", description = "Status inválido", content = @Content)
     })
     @GetMapping("/status/{status}")
-    public ResponseEntity<List<BugSaidaDto>> buscarPorStatus(
+    public ResponseEntity<Page<BugSaidaDto>> buscarPorStatus(
         @Parameter(description = "Status do bug", required = true, 
                    schema = @Schema(allowableValues = {"ABERTO", "EM_ANDAMENTO", "RESOLVIDO", "FECHADO"}),
                    example = "ABERTO")
-        @PathVariable StatusBug status
+        @PathVariable StatusBug status,
+        @Parameter(description = "Parâmetros de paginação (page, size, sort)", example = "page=0&size=10&sort=id,desc")
+        Pageable pageable
     ) {
-        List<BugSaidaDto> bugs = bugService.buscarPorStatus(status)
-            .stream()
-            .map(BugSaidaDto::new)
-            .toList();
+        Page<BugSaidaDto> bugs = bugService.buscarPorStatus(status, pageable)
+            .map(BugSaidaDto::new);
         return ResponseEntity.ok(bugs);
     }
 
@@ -136,16 +136,16 @@ public class BugController {
         @ApiResponse(responseCode = "400", description = "Prioridade inválida", content = @Content)
     })
     @GetMapping("/prioridade/{prioridade}")
-    public ResponseEntity<List<BugSaidaDto>> buscarPorPrioridade(
+    public ResponseEntity<Page<BugSaidaDto>> buscarPorPrioridade(
         @Parameter(description = "Prioridade do bug", required = true,
                    schema = @Schema(allowableValues = {"BAIXA", "MEDIA", "ALTA", "CRITICA"}),
                    example = "CRITICA")
-        @PathVariable Prioridade prioridade
+        @PathVariable Prioridade prioridade,
+        @Parameter(description = "Parâmetros de paginação (page, size, sort)", example = "page=0&size=10&sort=id,desc")
+        Pageable pageable
     ) {
-        List<BugSaidaDto> bugs = bugService.buscarPorPrioridade(prioridade)
-            .stream()
-            .map(BugSaidaDto::new)
-            .toList();
+        Page<BugSaidaDto> bugs = bugService.buscarPorPrioridade(prioridade, pageable)
+            .map(BugSaidaDto::new);
         return ResponseEntity.ok(bugs);
     }
 
@@ -159,14 +159,14 @@ public class BugController {
         @ApiResponse(responseCode = "404", description = "Usuário não encontrado", content = @Content)
     })
     @GetMapping("/responsavel/{usuarioId}")
-    public ResponseEntity<List<BugSaidaDto>> buscarPorResponsavel(
+    public ResponseEntity<Page<BugSaidaDto>> buscarPorResponsavel(
         @Parameter(description = "ID do usuário responsável", required = true, example = "1")
-        @PathVariable Long usuarioId
+        @PathVariable Long usuarioId,
+        @Parameter(description = "Parâmetros de paginação (page, size, sort)", example = "page=0&size=10&sort=id,desc")
+        Pageable pageable
     ) {
-        List<BugSaidaDto> bugs = bugService.buscarPorResponsavel(usuarioId)
-            .stream()
-            .map(BugSaidaDto::new)
-            .toList();
+        Page<BugSaidaDto> bugs = bugService.buscarPorResponsavel(usuarioId, pageable)
+            .map(BugSaidaDto::new);
         return ResponseEntity.ok(bugs);
     }
 
@@ -179,11 +179,12 @@ public class BugController {
         @ApiResponse(responseCode = "401", description = "Não autenticado", content = @Content)
     })
     @GetMapping("/sem-responsavel")
-    public ResponseEntity<List<BugSaidaDto>> buscarSemResponsavel() {
-        List<BugSaidaDto> bugs = bugService.buscarSemResponsavel()
-            .stream()
-            .map(BugSaidaDto::new)
-            .toList();
+    public ResponseEntity<Page<BugSaidaDto>> buscarSemResponsavel(
+        @Parameter(description = "Parâmetros de paginação (page, size, sort)", example = "page=0&size=10&sort=id,desc")
+        Pageable pageable
+    ) {
+        Page<BugSaidaDto> bugs = bugService.buscarSemResponsavel(pageable)
+            .map(BugSaidaDto::new);
         return ResponseEntity.ok(bugs);
     }
 
@@ -196,14 +197,14 @@ public class BugController {
         @ApiResponse(responseCode = "401", description = "Não autenticado", content = @Content)
     })
     @GetMapping("/buscar")
-    public ResponseEntity<List<BugSaidaDto>> buscarPorTermo(
+    public ResponseEntity<Page<BugSaidaDto>> buscarPorTermo(
         @Parameter(description = "Termo de busca", required = true, example = "pagamento")
-        @RequestParam String termo
+        @RequestParam String termo,
+        @Parameter(description = "Parâmetros de paginação (page, size, sort)", example = "page=0&size=10&sort=id,desc")
+        Pageable pageable
     ) {
-        List<BugSaidaDto> bugs = bugService.buscarPorTermo(termo)
-            .stream()
-            .map(BugSaidaDto::new)
-            .toList();
+        Page<BugSaidaDto> bugs = bugService.buscarPorTermo(termo, pageable)
+            .map(BugSaidaDto::new);
         return ResponseEntity.ok(bugs);
     }
 
