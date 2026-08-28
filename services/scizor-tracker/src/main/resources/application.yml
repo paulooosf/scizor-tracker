@@ -51,6 +51,11 @@ spring:
       name: admin
       password: admin
 
+api:
+  security:
+    token:
+      secret: ${JWT_SECRET:scizor-tracker-secret-key-change-in-production-2026}
+
 server:
   port: 8080
 
