@@ -1,8 +1,11 @@
 -- Inserção de usuários de exemplo
-INSERT INTO usuarios (nome, email, senha, data_criacao) VALUES
-('João Silva', 'joao.silva@example.com', '$2a$10$XYZ...', NOW()),
-('Maria Santos', 'maria.santos@example.com', '$2a$10$ABC...', NOW()),
-('Pedro Costa', 'pedro.costa@example.com', '$2a$10$DEF...', NOW())
+-- Admin: admin@scizor.com / admin123
+-- Users: *.example.com / senha123
+INSERT INTO usuarios (nome, email, senha, role, data_criacao) VALUES
+('Admin User', 'admin@scizor.com', '$2a$10$BJKSeSMAyJq6QFJbU0Klr.cgxJ1Hf9//YJWVgS534u8dxLbRBXmSm', 'ADMIN', NOW()),
+('João Silva', 'joao.silva@example.com', '$2a$10$jpck5LVrUvdQ99VkI4.qu.RP3Zdpw5hpJ.nvEsQDf/5c4X7va4Ms6', 'USER', NOW()),
+('Maria Santos', 'maria.santos@example.com', '$2a$10$jpck5LVrUvdQ99VkI4.qu.RP3Zdpw5hpJ.nvEsQDf/5c4X7va4Ms6', 'USER', NOW()),
+('Pedro Costa', 'pedro.costa@example.com', '$2a$10$jpck5LVrUvdQ99VkI4.qu.RP3Zdpw5hpJ.nvEsQDf/5c4X7va4Ms6', 'USER', NOW())
 ON CONFLICT (email) DO NOTHING;
 
 -- Inserção de projetos de exemplo

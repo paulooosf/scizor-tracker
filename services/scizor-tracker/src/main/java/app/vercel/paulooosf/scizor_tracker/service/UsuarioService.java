@@ -3,20 +3,23 @@ package app.vercel.paulooosf.scizor_tracker.service;
 import app.vercel.paulooosf.scizor_tracker.exception.UsuarioNaoEncontradoException;
 import app.vercel.paulooosf.scizor_tracker.model.Usuario;
 import app.vercel.paulooosf.scizor_tracker.repository.UsuarioRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.List;
 
 @Service
 public class UsuarioService {
 
     private final UsuarioRepository usuarioRepository;
+    private final PasswordEncoder passwordEncoder;
 
-    public UsuarioService(UsuarioRepository usuarioRepository) {
+    @Autowired
+    public UsuarioService(UsuarioRepository usuarioRepository, PasswordEncoder passwordEncoder) {
         this.usuarioRepository = usuarioRepository;
+        this.passwordEncoder = passwordEncoder;
     }
 
     @Transactional(readOnly = true)
@@ -41,6 +44,9 @@ public class UsuarioService {
         if (usuarioRepository.existsByEmail(usuario.getEmail())) {
             throw new IllegalArgumentException("Já existe um usuário com o email " + usuario.getEmail());
         }
+
+        usuario.setSenha(passwordEncoder.encode(usuario.getSenha()));
+        
         return usuarioRepository.save(usuario);
     }
 
@@ -58,7 +64,7 @@ public class UsuarioService {
         usuario.setNome(usuarioAtualizado.getNome());
         
         if (usuarioAtualizado.getSenha() != null && !usuarioAtualizado.getSenha().isBlank()) {
-            usuario.setSenha(usuarioAtualizado.getSenha());
+            usuario.setSenha(passwordEncoder.encode(usuarioAtualizado.getSenha()));
         }
 
         return usuarioRepository.save(usuario);
