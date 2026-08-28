@@ -7,6 +7,14 @@ import app.vercel.paulooosf.scizor_tracker.enums.Prioridade;
 import app.vercel.paulooosf.scizor_tracker.enums.StatusBug;
 import app.vercel.paulooosf.scizor_tracker.model.Bug;
 import app.vercel.paulooosf.scizor_tracker.service.BugService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -27,6 +35,8 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/bugs")
+@Tag(name = "Bugs", description = "Gerenciamento de bugs e rastreamento de problemas")
+@SecurityRequirement(name = "Bearer Authentication")
 public class BugController {
 
     private final BugService bugService;
@@ -35,21 +45,57 @@ public class BugController {
         this.bugService = bugService;
     }
 
+    @Operation(
+        summary = "Listar todos os bugs",
+        description = "Retorna uma lista paginada de todos os bugs cadastrados no sistema. Requer autenticação."
+    )
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Lista de bugs retornada com sucesso"),
+        @ApiResponse(responseCode = "401", description = "Não autenticado", content = @Content),
+        @ApiResponse(responseCode = "403", description = "Sem permissão", content = @Content)
+    })
     @GetMapping
-    public ResponseEntity<Page<BugSaidaDto>> listarTodos(Pageable pageable) {
+    public ResponseEntity<Page<BugSaidaDto>> listarTodos(
+        @Parameter(description = "Parâmetros de paginação (page, size, sort)", example = "page=0&size=10&sort=id,desc")
+        Pageable pageable
+    ) {
         Page<BugSaidaDto> bugs = bugService.listarTodos(pageable)
             .map(BugSaidaDto::new);
         return ResponseEntity.ok(bugs);
     }
 
+    @Operation(
+        summary = "Buscar bug por ID",
+        description = "Retorna os detalhes de um bug específico pelo seu identificador único"
+    )
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Bug encontrado"),
+        @ApiResponse(responseCode = "401", description = "Não autenticado", content = @Content),
+        @ApiResponse(responseCode = "404", description = "Bug não encontrado", content = @Content)
+    })
     @GetMapping("/{id}")
-    public ResponseEntity<BugSaidaDto> buscarPorId(@PathVariable Long id) {
+    public ResponseEntity<BugSaidaDto> buscarPorId(
+        @Parameter(description = "ID do bug", required = true, example = "1")
+        @PathVariable Long id
+    ) {
         Bug bug = bugService.buscarPorId(id);
         return ResponseEntity.ok(new BugSaidaDto(bug));
     }
 
+    @Operation(
+        summary = "Buscar bugs por projeto",
+        description = "Retorna todos os bugs associados a um projeto específico"
+    )
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Lista de bugs do projeto"),
+        @ApiResponse(responseCode = "401", description = "Não autenticado", content = @Content),
+        @ApiResponse(responseCode = "404", description = "Projeto não encontrado", content = @Content)
+    })
     @GetMapping("/projeto/{projetoId}")
-    public ResponseEntity<List<BugSaidaDto>> buscarPorProjeto(@PathVariable Long projetoId) {
+    public ResponseEntity<List<BugSaidaDto>> buscarPorProjeto(
+        @Parameter(description = "ID do projeto", required = true, example = "1")
+        @PathVariable Long projetoId
+    ) {
         List<BugSaidaDto> bugs = bugService.buscarPorProjeto(projetoId)
             .stream()
             .map(BugSaidaDto::new)
@@ -57,8 +103,22 @@ public class BugController {
         return ResponseEntity.ok(bugs);
     }
 
+    @Operation(
+        summary = "Buscar bugs por status",
+        description = "Filtra bugs pelo seu status atual (ABERTO, EM_ANDAMENTO, RESOLVIDO, FECHADO)"
+    )
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Lista de bugs com o status especificado"),
+        @ApiResponse(responseCode = "401", description = "Não autenticado", content = @Content),
+        @ApiResponse(responseCode = "400", description = "Status inválido", content = @Content)
+    })
     @GetMapping("/status/{status}")
-    public ResponseEntity<List<BugSaidaDto>> buscarPorStatus(@PathVariable StatusBug status) {
+    public ResponseEntity<List<BugSaidaDto>> buscarPorStatus(
+        @Parameter(description = "Status do bug", required = true, 
+                   schema = @Schema(allowableValues = {"ABERTO", "EM_ANDAMENTO", "RESOLVIDO", "FECHADO"}),
+                   example = "ABERTO")
+        @PathVariable StatusBug status
+    ) {
         List<BugSaidaDto> bugs = bugService.buscarPorStatus(status)
             .stream()
             .map(BugSaidaDto::new)
@@ -66,8 +126,22 @@ public class BugController {
         return ResponseEntity.ok(bugs);
     }
 
+    @Operation(
+        summary = "Buscar bugs por prioridade",
+        description = "Filtra bugs pela sua prioridade (BAIXA, MEDIA, ALTA, CRITICA)"
+    )
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Lista de bugs com a prioridade especificada"),
+        @ApiResponse(responseCode = "401", description = "Não autenticado", content = @Content),
+        @ApiResponse(responseCode = "400", description = "Prioridade inválida", content = @Content)
+    })
     @GetMapping("/prioridade/{prioridade}")
-    public ResponseEntity<List<BugSaidaDto>> buscarPorPrioridade(@PathVariable Prioridade prioridade) {
+    public ResponseEntity<List<BugSaidaDto>> buscarPorPrioridade(
+        @Parameter(description = "Prioridade do bug", required = true,
+                   schema = @Schema(allowableValues = {"BAIXA", "MEDIA", "ALTA", "CRITICA"}),
+                   example = "CRITICA")
+        @PathVariable Prioridade prioridade
+    ) {
         List<BugSaidaDto> bugs = bugService.buscarPorPrioridade(prioridade)
             .stream()
             .map(BugSaidaDto::new)
@@ -75,8 +149,20 @@ public class BugController {
         return ResponseEntity.ok(bugs);
     }
 
+    @Operation(
+        summary = "Buscar bugs por responsável",
+        description = "Retorna todos os bugs atribuídos a um usuário específico"
+    )
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Lista de bugs do responsável"),
+        @ApiResponse(responseCode = "401", description = "Não autenticado", content = @Content),
+        @ApiResponse(responseCode = "404", description = "Usuário não encontrado", content = @Content)
+    })
     @GetMapping("/responsavel/{usuarioId}")
-    public ResponseEntity<List<BugSaidaDto>> buscarPorResponsavel(@PathVariable Long usuarioId) {
+    public ResponseEntity<List<BugSaidaDto>> buscarPorResponsavel(
+        @Parameter(description = "ID do usuário responsável", required = true, example = "1")
+        @PathVariable Long usuarioId
+    ) {
         List<BugSaidaDto> bugs = bugService.buscarPorResponsavel(usuarioId)
             .stream()
             .map(BugSaidaDto::new)
@@ -84,6 +170,14 @@ public class BugController {
         return ResponseEntity.ok(bugs);
     }
 
+    @Operation(
+        summary = "Buscar bugs sem responsável",
+        description = "Retorna todos os bugs que ainda não possuem um responsável atribuído"
+    )
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Lista de bugs sem responsável"),
+        @ApiResponse(responseCode = "401", description = "Não autenticado", content = @Content)
+    })
     @GetMapping("/sem-responsavel")
     public ResponseEntity<List<BugSaidaDto>> buscarSemResponsavel() {
         List<BugSaidaDto> bugs = bugService.buscarSemResponsavel()
@@ -93,8 +187,19 @@ public class BugController {
         return ResponseEntity.ok(bugs);
     }
 
+    @Operation(
+        summary = "Buscar bugs por termo",
+        description = "Realiza busca textual no título e descrição dos bugs"
+    )
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Lista de bugs encontrados"),
+        @ApiResponse(responseCode = "401", description = "Não autenticado", content = @Content)
+    })
     @GetMapping("/buscar")
-    public ResponseEntity<List<BugSaidaDto>> buscarPorTermo(@RequestParam String termo) {
+    public ResponseEntity<List<BugSaidaDto>> buscarPorTermo(
+        @Parameter(description = "Termo de busca", required = true, example = "pagamento")
+        @RequestParam String termo
+    ) {
         List<BugSaidaDto> bugs = bugService.buscarPorTermo(termo)
             .stream()
             .map(BugSaidaDto::new)
@@ -102,50 +207,136 @@ public class BugController {
         return ResponseEntity.ok(bugs);
     }
 
+    @Operation(
+        summary = "Criar novo bug",
+        description = "Cria um novo bug no sistema. **Requer permissão ADMIN**. Publica evento `bug.criado` no Kafka e `bug.critico` se prioridade for CRITICA."
+    )
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "201", description = "Bug criado com sucesso"),
+        @ApiResponse(responseCode = "400", description = "Dados inválidos", content = @Content),
+        @ApiResponse(responseCode = "401", description = "Não autenticado", content = @Content),
+        @ApiResponse(responseCode = "403", description = "Sem permissão (requer ADMIN)", content = @Content),
+        @ApiResponse(responseCode = "404", description = "Projeto não encontrado", content = @Content)
+    })
     @PostMapping
     public ResponseEntity<BugSaidaDto> criar(
+        @io.swagger.v3.oas.annotations.parameters.RequestBody(
+            description = "Dados do novo bug",
+            required = true
+        )
         @Valid @RequestBody BugEntradaDto dto,
+        @Parameter(description = "ID do projeto ao qual o bug pertence", required = true, example = "1")
         @RequestParam Long projetoId
     ) {
         Bug bug = bugService.criar(dto.converter(), projetoId);
         return ResponseEntity.status(HttpStatus.CREATED).body(new BugSaidaDto(bug));
     }
 
+    @Operation(
+        summary = "Atualizar bug",
+        description = "Atualiza as informações de um bug existente. **Requer permissão ADMIN**."
+    )
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Bug atualizado com sucesso"),
+        @ApiResponse(responseCode = "400", description = "Dados inválidos", content = @Content),
+        @ApiResponse(responseCode = "401", description = "Não autenticado", content = @Content),
+        @ApiResponse(responseCode = "403", description = "Sem permissão (requer ADMIN)", content = @Content),
+        @ApiResponse(responseCode = "404", description = "Bug não encontrado", content = @Content)
+    })
     @PutMapping("/{id}")
     public ResponseEntity<BugSaidaDto> atualizar(
+        @Parameter(description = "ID do bug a ser atualizado", required = true, example = "1")
         @PathVariable Long id,
+        @io.swagger.v3.oas.annotations.parameters.RequestBody(
+            description = "Novos dados do bug",
+            required = true
+        )
         @Valid @RequestBody BugEntradaDto dto
     ) {
         Bug bug = bugService.atualizar(id, dto.converter());
         return ResponseEntity.ok(new BugSaidaDto(bug));
     }
 
+    @Operation(
+        summary = "Atualizar status do bug",
+        description = "Altera o status de um bug. **Requer permissão ADMIN**. Publica evento `bug.status.alterado` no Kafka."
+    )
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Status atualizado com sucesso"),
+        @ApiResponse(responseCode = "400", description = "Status inválido", content = @Content),
+        @ApiResponse(responseCode = "401", description = "Não autenticado", content = @Content),
+        @ApiResponse(responseCode = "403", description = "Sem permissão (requer ADMIN)", content = @Content),
+        @ApiResponse(responseCode = "404", description = "Bug não encontrado", content = @Content)
+    })
     @PatchMapping("/{id}/status")
     public ResponseEntity<BugSaidaDto> atualizarStatus(
+        @Parameter(description = "ID do bug", required = true, example = "1")
         @PathVariable Long id,
+        @io.swagger.v3.oas.annotations.parameters.RequestBody(
+            description = "Novo status do bug",
+            required = true
+        )
         @Valid @RequestBody AtualizarStatusDto dto
     ) {
         Bug bug = bugService.atualizarStatus(id, dto.status());
         return ResponseEntity.ok(new BugSaidaDto(bug));
     }
 
+    @Operation(
+        summary = "Atribuir responsável ao bug",
+        description = "Atribui um usuário como responsável pelo bug. **Requer permissão ADMIN**. Publica evento `bug.responsavel.atribuido` no Kafka."
+    )
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Responsável atribuído com sucesso"),
+        @ApiResponse(responseCode = "401", description = "Não autenticado", content = @Content),
+        @ApiResponse(responseCode = "403", description = "Sem permissão (requer ADMIN)", content = @Content),
+        @ApiResponse(responseCode = "404", description = "Bug ou usuário não encontrado", content = @Content)
+    })
     @PatchMapping("/{bugId}/responsavel/{usuarioId}")
     public ResponseEntity<BugSaidaDto> atribuirResponsavel(
+        @Parameter(description = "ID do bug", required = true, example = "1")
         @PathVariable Long bugId,
+        @Parameter(description = "ID do usuário responsável", required = true, example = "1")
         @PathVariable Long usuarioId
     ) {
         Bug bug = bugService.atribuirResponsavel(bugId, usuarioId);
         return ResponseEntity.ok(new BugSaidaDto(bug));
     }
 
+    @Operation(
+        summary = "Remover responsável do bug",
+        description = "Remove o responsável atribuído ao bug. **Requer permissão ADMIN**."
+    )
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Responsável removido com sucesso"),
+        @ApiResponse(responseCode = "401", description = "Não autenticado", content = @Content),
+        @ApiResponse(responseCode = "403", description = "Sem permissão (requer ADMIN)", content = @Content),
+        @ApiResponse(responseCode = "404", description = "Bug não encontrado", content = @Content)
+    })
     @DeleteMapping("/{bugId}/responsavel")
-    public ResponseEntity<BugSaidaDto> removerResponsavel(@PathVariable Long bugId) {
+    public ResponseEntity<BugSaidaDto> removerResponsavel(
+        @Parameter(description = "ID do bug", required = true, example = "1")
+        @PathVariable Long bugId
+    ) {
         Bug bug = bugService.removerResponsavel(bugId);
         return ResponseEntity.ok(new BugSaidaDto(bug));
     }
 
+    @Operation(
+        summary = "Deletar bug",
+        description = "Remove permanentemente um bug do sistema. **Requer permissão ADMIN**."
+    )
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "204", description = "Bug deletado com sucesso"),
+        @ApiResponse(responseCode = "401", description = "Não autenticado", content = @Content),
+        @ApiResponse(responseCode = "403", description = "Sem permissão (requer ADMIN)", content = @Content),
+        @ApiResponse(responseCode = "404", description = "Bug não encontrado", content = @Content)
+    })
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deletar(@PathVariable Long id) {
+    public ResponseEntity<Void> deletar(
+        @Parameter(description = "ID do bug a ser deletado", required = true, example = "1")
+        @PathVariable Long id
+    ) {
         bugService.deletar(id);
         return ResponseEntity.noContent().build();
     }
