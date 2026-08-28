@@ -86,14 +86,14 @@ public class ProjetoController {
         @ApiResponse(responseCode = "401", description = "Não autenticado", content = @Content)
     })
     @GetMapping("/buscar")
-    public ResponseEntity<List<ProjetoSaidaDto>> buscarPorNome(
+    public ResponseEntity<Page<ProjetoSaidaDto>> buscarPorNome(
         @Parameter(description = "Nome ou parte do nome do projeto", required = true, example = "Sistema")
-        @RequestParam String nome
+        @RequestParam String nome,
+        @Parameter(description = "Parâmetros de paginação (page, size, sort)", example = "page=0&size=10&sort=nome,asc")
+        Pageable pageable
     ) {
-        List<ProjetoSaidaDto> projetos = projetoService.buscarPorNome(nome)
-            .stream()
-            .map(ProjetoSaidaDto::new)
-            .toList();
+        Page<ProjetoSaidaDto> projetos = projetoService.buscarPorNome(nome, pageable)
+            .map(ProjetoSaidaDto::new);
         return ResponseEntity.ok(projetos);
     }
 

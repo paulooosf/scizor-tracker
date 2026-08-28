@@ -40,8 +40,8 @@ public class ProjetoService {
     }
 
     @Transactional(readOnly = true)
-    public List<Projeto> buscarPorNome(String nome) {
-        return projetoRepository.findByNomeContainingIgnoreCase(nome);
+    public Page<Projeto> buscarPorNome(String nome, Pageable pageable) {
+        return projetoRepository.findByNomeContainingIgnoreCase(nome, pageable);
     }
 
     @Transactional
