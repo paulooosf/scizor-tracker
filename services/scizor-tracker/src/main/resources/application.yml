@@ -28,24 +28,6 @@ spring:
       data-locations: classpath:data.sql
       continue-on-error: false
   
-  kafka:
-    bootstrap-servers: kafka:9092
-    admin:
-      fail-fast: false
-    consumer:
-      group-id: scizor-tracker-group
-      auto-offset-reset: earliest
-      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
-      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
-      properties:
-        spring.json.trusted.packages: app.vercel.paulooosf.scizor_tracker.dto.evento
-        spring.json.use.type.headers: true
-    producer:
-      key-serializer: org.apache.kafka.common.serialization.StringSerializer
-      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
-      properties:
-        spring.json.add.type.headers: true
-  
   security:
     user:
       name: admin

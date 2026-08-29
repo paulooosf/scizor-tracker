@@ -1,14 +1,9 @@
 package app.vercel.paulooosf.scizor_tracker.service;
 
-import app.vercel.paulooosf.scizor_tracker.dto.evento.BugCriadoEvento;
-import app.vercel.paulooosf.scizor_tracker.dto.evento.BugResponsavelAtribuidoEvento;
-import app.vercel.paulooosf.scizor_tracker.dto.evento.BugStatusAlteradoEvento;
 import app.vercel.paulooosf.scizor_tracker.enums.Prioridade;
 import app.vercel.paulooosf.scizor_tracker.enums.StatusBug;
 import app.vercel.paulooosf.scizor_tracker.exception.BugNaoEncontradoException;
 import app.vercel.paulooosf.scizor_tracker.exception.StatusInvalidoException;
-import app.vercel.paulooosf.scizor_tracker.messaging.TopicosKafka;
-import app.vercel.paulooosf.scizor_tracker.messaging.publicador.PublicadorEvento;
 import app.vercel.paulooosf.scizor_tracker.model.Bug;
 import app.vercel.paulooosf.scizor_tracker.model.Projeto;
 import app.vercel.paulooosf.scizor_tracker.model.Usuario;
@@ -19,7 +14,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import java.util.List;
 
 @Service
 public class BugService {
@@ -27,18 +21,15 @@ public class BugService {
     private final BugRepository bugRepository;
     private final ProjetoService projetoService;
     private final UsuarioService usuarioService;
-    private final PublicadorEvento publicadorEvento;
 
     public BugService(
         BugRepository bugRepository,
         ProjetoService projetoService,
-        UsuarioService usuarioService,
-        PublicadorEvento publicadorEvento
+        UsuarioService usuarioService
     ) {
         this.bugRepository = bugRepository;
         this.projetoService = projetoService;
         this.usuarioService = usuarioService;
-        this.publicadorEvento = publicadorEvento;
     }
 
     @Transactional(readOnly = true)
@@ -102,21 +93,7 @@ public class BugService {
         bug.setDataCriacao(agora);
         bug.setDataAtualizacao(agora);
 
-        Bug bugSalvo = bugRepository.save(bug);
-        publicadorEvento.publicar(
-            TopicosKafka.BUG_CRIADO,
-            String.valueOf(bugSalvo.getId()),
-            new BugCriadoEvento(
-                bugSalvo.getId(),
-                bugSalvo.getTitulo(),
-                bugSalvo.getPrioridade(),
-                projeto.getId(),
-                projeto.getNome(),
-                null,
-                bugSalvo.getDataCriacao()
-            )
-        );
-        return bugSalvo;
+        return bugRepository.save(bug);
     }
 
     @Transactional
@@ -137,20 +114,7 @@ public class BugService {
         validarTransicaoStatus(statusAnterior, novoStatus);
         bug.atualizarStatus(novoStatus);
 
-        Bug bugSalvo = bugRepository.save(bug);
-        publicadorEvento.publicar(
-            TopicosKafka.BUG_STATUS_ALTERADO,
-            String.valueOf(bugSalvo.getId()),
-            new BugStatusAlteradoEvento(
-                bugSalvo.getId(),
-                statusAnterior,
-                bugSalvo.getStatus(),
-                emailResponsavel(bugSalvo),
-                bugSalvo.getProjeto().getId(),
-                bugSalvo.getDataAtualizacao()
-            )
-        );
-        return bugSalvo;
+        return bugRepository.save(bug);
     }
 
     @Transactional
@@ -159,19 +123,7 @@ public class BugService {
         Usuario usuario = usuarioService.buscarPorId(usuarioId);
         bug.setUsuarioResponsavel(usuario);
 
-        Bug bugSalvo = bugRepository.save(bug);
-        publicadorEvento.publicar(
-            TopicosKafka.BUG_RESPONSAVEL_ATRIBUIDO,
-            String.valueOf(bugSalvo.getId()),
-            new BugResponsavelAtribuidoEvento(
-                bugSalvo.getId(),
-                bugSalvo.getTitulo(),
-                usuario.getId(),
-                usuario.getEmail(),
-                null
-            )
-        );
-        return bugSalvo;
+        return bugRepository.save(bug);
     }
 
     @Transactional
