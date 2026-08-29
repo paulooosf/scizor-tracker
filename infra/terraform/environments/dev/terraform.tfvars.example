@@ -1,0 +1,28 @@
+# =============================================================================
+# VALORES DAS VARIÁVEIS - AMBIENTE DEV
+# =============================================================================
+# IMPORTANTE: Copie este arquivo para "terraform.tfvars" e preencha os valores
+# NUNCA faça commit do arquivo terraform.tfvars (contém senhas!)
+
+aws_region   = "us-east-1"
+project_name = "scizor-tracker"
+environment  = "dev"
+
+# Networking
+vpc_cidr             = "10.0.0.0/16"
+availability_zones   = ["us-east-1a", "us-east-1b"]
+public_subnet_cidrs  = ["10.0.1.0/24", "10.0.2.0/24"]
+private_subnet_cidrs = ["10.0.11.0/24", "10.0.12.0/24"]
+
+# RDS PostgreSQL
+db_name           = "scizor_tracker"
+db_username       = "scizor_admin"
+db_password       = "MUDE_ESTA_SENHA_AQUI"  # ⚠️ IMPORTANTE: Escolha uma senha forte!
+db_instance_class = "db.t3.micro"
+allocated_storage = 20
+
+# ECS - Imagem Docker
+# ANTES DE RODAR: Faça push da imagem para Docker Hub ou ECR
+# Exemplo Docker Hub: "seu-usuario/scizor-tracker:latest"
+# Exemplo ECR: "123456789012.dkr.ecr.us-east-1.amazonaws.com/scizor-tracker:latest"
+docker_image = "SEU_USUARIO_DOCKERHUB/scizor-tracker:latest"
