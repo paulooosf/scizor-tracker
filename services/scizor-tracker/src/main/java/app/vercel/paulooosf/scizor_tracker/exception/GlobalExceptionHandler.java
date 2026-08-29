@@ -1,5 +1,6 @@
 package app.vercel.paulooosf.scizor_tracker.exception;
 
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -41,6 +42,22 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(SemPermissaoException.class)
     public ResponseEntity<?> handleSemPermissao(SemPermissaoException ex) {
         return construirResposta(HttpStatus.FORBIDDEN, "Sem permissão", ex.getMessage());
+    }
+
+    @ExceptionHandler(DataIntegrityViolationException.class)
+    public ResponseEntity<?> handleDataIntegrityViolation(DataIntegrityViolationException ex) {
+        String mensagem = "Violação de integridade de dados";
+
+        if (ex.getMessage() != null && ex.getMessage().contains("email")) {
+            mensagem = "Email já cadastrado no sistema";
+        }
+        
+        return construirResposta(HttpStatus.BAD_REQUEST, "Dados inválidos", mensagem);
+    }
+    
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<?> handleIllegalArgument(IllegalArgumentException ex) {
+        return construirResposta(HttpStatus.BAD_REQUEST, "Argumento inválido", ex.getMessage());
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
