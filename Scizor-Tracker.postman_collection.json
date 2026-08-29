@@ -54,7 +54,7 @@
 							"mode": "raw",
 							"raw": "{\n  \"email\": \"admin@scizor.com\",\n  \"senha\": \"admin123\"\n}"
 						},
-						"url": "http://localhost:8080/api/autenticar/login",
+						"url": "{{base_url}}/api/autenticar/login",
 						"description": "Login como ADMIN - Permissões totais"
 					}
 				},
@@ -93,7 +93,7 @@
 							"mode": "raw",
 							"raw": "{\n  \"email\": \"joao.silva@example.com\",\n  \"senha\": \"senha123\"\n}"
 						},
-						"url": "http://localhost:8080/api/autenticar/login",
+						"url": "{{base_url}}/api/autenticar/login",
 						"description": "Login como USER - Apenas leitura"
 					}
 				},
@@ -114,7 +114,7 @@
 							"mode": "raw",
 							"raw": "{\n  \"email\": \"admin@scizor.com\",\n  \"senha\": \"senhaErrada\"\n}"
 						},
-						"url": "http://localhost:8080/api/autenticar/login",
+						"url": "{{base_url}}/api/autenticar/login",
 						"description": "Teste de credenciais inválidas - Deve retornar 'Email e/ou senha incorretos'"
 					}
 				},
@@ -135,7 +135,7 @@
 							"mode": "raw",
 							"raw": "{\n  \"email\": \"joao.silva@example.com\"\n}"
 						},
-						"url": "http://localhost:8080/api/autenticar/esqueci-senha",
+						"url": "{{base_url}}/api/autenticar/esqueci-senha",
 						"description": "Gera token de redefinição de senha (15min). Em produção será enviado por email."
 					}
 				},
@@ -156,7 +156,7 @@
 							"mode": "raw",
 							"raw": "{\n  \"token\": \"TOKEN_GERADO_NO_PASSO_ANTERIOR\",\n  \"senha\": \"novaSenha123\"\n}"
 						},
-						"url": "http://localhost:8080/api/autenticar/redefinir-senha",
+						"url": "{{base_url}}/api/autenticar/redefinir-senha",
 						"description": "Redefine senha usando token. Substitua TOKEN_GERADO_NO_PASSO_ANTERIOR pelo token recebido em 'Solicitar Redefinicao de Senha'."
 					}
 				}
@@ -172,10 +172,8 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "http://localhost:8080/api/usuarios?page=0&size=10",
-							"protocol": "http",
-							"host": ["localhost"],
-							"port": "8080",
+							"raw": "{{base_url}}/api/usuarios?page=0&size=10",
+							"host": ["{{base_url}}"],
 							"path": ["api", "usuarios"],
 							"query": [
 								{"key": "page", "value": "0"},
@@ -190,7 +188,7 @@
 					"request": {
 						"method": "GET",
 						"header": [],
-						"url": "http://localhost:8080/api/usuarios/1",
+						"url": "{{base_url}}/api/usuarios/1",
 						"description": "🔒 Requer autenticação (USER ou ADMIN)"
 					}
 				},
@@ -206,7 +204,7 @@
 							"mode": "raw",
 							"raw": "{\n  \"nome\": \"Paulo Ferreira\",\n  \"email\": \"paulo@email.com\",\n  \"senha\": \"senha123\"\n}"
 						},
-						"url": "http://localhost:8080/api/usuarios",
+						"url": "{{base_url}}/api/usuarios",
 						"description": "✅ Público (criação de conta)"
 					}
 				},
@@ -219,7 +217,7 @@
 							"mode": "raw",
 							"raw": "{\n  \"nome\": \"Paulo Ferreira Silva\",\n  \"email\": \"paulo@email.com\",\n  \"senha\": \"novaSenha123\"\n}"
 						},
-						"url": "http://localhost:8080/api/usuarios/1",
+						"url": "{{base_url}}/api/usuarios/1",
 						"description": "🔐 Requer ADMIN"
 					}
 				},
@@ -228,7 +226,7 @@
 					"request": {
 						"method": "DELETE",
 						"header": [],
-						"url": "http://localhost:8080/api/usuarios/1",
+						"url": "{{base_url}}/api/usuarios/1",
 						"description": "🔐 Requer ADMIN"
 					}
 				}
@@ -243,7 +241,7 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "http://localhost:8080/api/projetos?page=0&size=10",
+							"raw": "{{base_url}}/api/projetos?page=0&size=10",
 							"protocol": "http",
 							"host": ["localhost"],
 							"port": "8080",
@@ -261,7 +259,7 @@
 					"request": {
 						"method": "GET",
 						"header": [],
-						"url": "http://localhost:8080/api/projetos/1",
+						"url": "{{base_url}}/api/projetos/1",
 						"description": "🔒 Requer autenticação (USER ou ADMIN)"
 					}
 				},
@@ -274,7 +272,7 @@
 							"mode": "raw",
 							"raw": "{\n  \"nome\": \"Sistema E-commerce\",\n  \"descricao\": \"Plataforma de vendas online\"\n}"
 						},
-						"url": "http://localhost:8080/api/projetos",
+						"url": "{{base_url}}/api/projetos",
 						"description": "🔐 Requer ADMIN"
 					}
 				},
@@ -284,7 +282,7 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "http://localhost:8080/api/projetos/buscar?nome=Sistema",
+							"raw": "{{base_url}}/api/projetos/buscar?nome=Sistema",
 							"protocol": "http",
 							"host": ["localhost"],
 							"port": "8080",
@@ -303,7 +301,7 @@
 							"mode": "raw",
 							"raw": "{\n  \"nome\": \"Sistema E-commerce Atualizado\",\n  \"descricao\": \"Nova descrição do projeto\"\n}"
 						},
-						"url": "http://localhost:8080/api/projetos/1",
+						"url": "{{base_url}}/api/projetos/1",
 						"description": "🔐 Requer ADMIN"
 					}
 				},
@@ -312,7 +310,7 @@
 					"request": {
 						"method": "DELETE",
 						"header": [],
-						"url": "http://localhost:8080/api/projetos/1",
+						"url": "{{base_url}}/api/projetos/1",
 						"description": "🔐 Requer ADMIN"
 					}
 				}
@@ -327,7 +325,7 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "http://localhost:8080/api/bugs?page=0&size=10",
+							"raw": "{{base_url}}/api/bugs?page=0&size=10",
 							"protocol": "http",
 							"host": ["localhost"],
 							"port": "8080",
@@ -345,7 +343,7 @@
 					"request": {
 						"method": "GET",
 						"header": [],
-						"url": "http://localhost:8080/api/bugs/1",
+						"url": "{{base_url}}/api/bugs/1",
 						"description": "🔒 Requer autenticação (USER ou ADMIN)"
 					}
 				},
@@ -373,7 +371,7 @@
 							"raw": "{\n  \"titulo\": \"Erro ao processar pagamento\",\n  \"descricao\": \"Sistema retorna erro 500 ao finalizar compra\",\n  \"prioridade\": \"ALTA\"\n}"
 						},
 						"url": {
-							"raw": "http://localhost:8080/api/bugs?projetoId=1",
+							"raw": "{{base_url}}/api/bugs?projetoId=1",
 							"protocol": "http",
 							"host": ["localhost"],
 							"port": "8080",
@@ -408,7 +406,7 @@
 							"raw": "{\n  \"titulo\": \"Sistema completamente inoperante\",\n  \"descricao\": \"Nenhum usuário consegue fazer login\",\n  \"prioridade\": \"CRITICA\"\n}"
 						},
 						"url": {
-							"raw": "http://localhost:8080/api/bugs?projetoId=1",
+							"raw": "{{base_url}}/api/bugs?projetoId=1",
 							"protocol": "http",
 							"host": ["localhost"],
 							"port": "8080",
@@ -441,7 +439,7 @@
 							"mode": "raw",
 							"raw": "{\n  \"status\": \"EM_ANDAMENTO\"\n}"
 						},
-						"url": "http://localhost:8080/api/bugs/1/status",
+						"url": "{{base_url}}/api/bugs/1/status",
 						"description": "🔐 Requer ADMIN | Publica evento bug.status.alterado"
 					}
 				},
@@ -464,7 +462,7 @@
 					"request": {
 						"method": "PATCH",
 						"header": [],
-						"url": "http://localhost:8080/api/bugs/1/responsavel/1",
+						"url": "{{base_url}}/api/bugs/1/responsavel/1",
 						"description": "🔐 Requer ADMIN | Publica evento bug.responsavel.atribuido"
 					}
 				},
@@ -473,7 +471,7 @@
 					"request": {
 						"method": "DELETE",
 						"header": [],
-						"url": "http://localhost:8080/api/bugs/1/responsavel",
+						"url": "{{base_url}}/api/bugs/1/responsavel",
 						"description": "🔐 Requer ADMIN"
 					}
 				},
@@ -482,7 +480,7 @@
 					"request": {
 						"method": "GET",
 						"header": [],
-						"url": "http://localhost:8080/api/bugs/projeto/1",
+						"url": "{{base_url}}/api/bugs/projeto/1",
 						"description": "🔒 Requer autenticação (USER ou ADMIN)"
 					}
 				},
@@ -491,7 +489,7 @@
 					"request": {
 						"method": "GET",
 						"header": [],
-						"url": "http://localhost:8080/api/bugs/status/ABERTO",
+						"url": "{{base_url}}/api/bugs/status/ABERTO",
 						"description": "🔒 Requer autenticação (USER ou ADMIN)"
 					}
 				},
@@ -500,7 +498,7 @@
 					"request": {
 						"method": "GET",
 						"header": [],
-						"url": "http://localhost:8080/api/bugs/prioridade/CRITICA",
+						"url": "{{base_url}}/api/bugs/prioridade/CRITICA",
 						"description": "🔒 Requer autenticação (USER ou ADMIN)"
 					}
 				},
@@ -509,7 +507,7 @@
 					"request": {
 						"method": "GET",
 						"header": [],
-						"url": "http://localhost:8080/api/bugs/sem-responsavel",
+						"url": "{{base_url}}/api/bugs/sem-responsavel",
 						"description": "🔒 Requer autenticação (USER ou ADMIN)"
 					}
 				},
@@ -519,7 +517,7 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "http://localhost:8080/api/bugs/buscar?termo=pagamento",
+							"raw": "{{base_url}}/api/bugs/buscar?termo=pagamento",
 							"protocol": "http",
 							"host": ["localhost"],
 							"port": "8080",
@@ -538,7 +536,7 @@
 							"mode": "raw",
 							"raw": "{\n  \"titulo\": \"Erro ao processar pagamento - ATUALIZADO\",\n  \"descricao\": \"Descrição atualizada do bug\",\n  \"prioridade\": \"CRITICA\"\n}"
 						},
-						"url": "http://localhost:8080/api/bugs/1",
+						"url": "{{base_url}}/api/bugs/1",
 						"description": "🔐 Requer ADMIN"
 					}
 				},
@@ -547,7 +545,7 @@
 					"request": {
 						"method": "DELETE",
 						"header": [],
-						"url": "http://localhost:8080/api/bugs/1",
+						"url": "{{base_url}}/api/bugs/1",
 						"description": "🔐 Requer ADMIN"
 					}
 				}
@@ -562,7 +560,7 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "http://localhost:8080/api/comentarios?page=0&size=10",
+							"raw": "{{base_url}}/api/comentarios?page=0&size=10",
 							"protocol": "http",
 							"host": ["localhost"],
 							"port": "8080",
@@ -580,7 +578,7 @@
 					"request": {
 						"method": "GET",
 						"header": [],
-						"url": "http://localhost:8080/api/comentarios/1",
+						"url": "{{base_url}}/api/comentarios/1",
 						"description": "🔒 Requer autenticação (USER ou ADMIN)"
 					}
 				},
@@ -608,7 +606,7 @@
 							"raw": "{\n  \"texto\": \"Consegui reproduzir o bug, problema está na integração com gateway de pagamento\"\n}"
 						},
 						"url": {
-							"raw": "http://localhost:8080/api/comentarios?bugId=1&usuarioId=1",
+							"raw": "{{base_url}}/api/comentarios?bugId=1&usuarioId=1",
 							"protocol": "http",
 							"host": ["localhost"],
 							"port": "8080",
@@ -626,7 +624,7 @@
 					"request": {
 						"method": "GET",
 						"header": [],
-						"url": "http://localhost:8080/api/comentarios/bug/1",
+						"url": "{{base_url}}/api/comentarios/bug/1",
 						"description": "🔒 Requer autenticação (USER ou ADMIN)"
 					}
 				},
@@ -635,7 +633,7 @@
 					"request": {
 						"method": "GET",
 						"header": [],
-						"url": "http://localhost:8080/api/comentarios/usuario/1",
+						"url": "{{base_url}}/api/comentarios/usuario/1",
 						"description": "🔒 Requer autenticação (USER ou ADMIN)"
 					}
 				},
@@ -648,7 +646,7 @@
 							"mode": "raw",
 							"raw": "{\n  \"texto\": \"Comentário atualizado com novas informações\"\n}"
 						},
-						"url": "http://localhost:8080/api/comentarios/1",
+						"url": "{{base_url}}/api/comentarios/1",
 						"description": "🔐 Requer ADMIN"
 					}
 				},
@@ -657,7 +655,7 @@
 					"request": {
 						"method": "DELETE",
 						"header": [],
-						"url": "http://localhost:8080/api/comentarios/1",
+						"url": "{{base_url}}/api/comentarios/1",
 						"description": "🔐 Requer ADMIN"
 					}
 				}
@@ -693,7 +691,7 @@
 							"mode": "raw",
 							"raw": "{\n  \"email\": \"admin@scizor.com\",\n  \"senha\": \"admin123\"\n}"
 						},
-						"url": "http://localhost:8080/api/autenticar/login",
+						"url": "{{base_url}}/api/autenticar/login",
 						"description": "✅ Público | Execute PRIMEIRO para obter token ADMIN"
 					}
 				},
@@ -706,7 +704,7 @@
 							"mode": "raw",
 							"raw": "{\n  \"nome\": \"Dev Tester\",\n  \"email\": \"dev@scizor.com\",\n  \"senha\": \"senha123\"\n}"
 						},
-						"url": "http://localhost:8080/api/usuarios",
+						"url": "{{base_url}}/api/usuarios",
 						"description": "🔐 Requer ADMIN"
 					}
 				},
@@ -719,7 +717,7 @@
 							"mode": "raw",
 							"raw": "{\n  \"nome\": \"API Gateway\",\n  \"descricao\": \"Sistema de gateway para microserviços\"\n}"
 						},
-						"url": "http://localhost:8080/api/projetos",
+						"url": "{{base_url}}/api/projetos",
 						"description": "🔐 Requer ADMIN"
 					}
 				},
@@ -733,7 +731,7 @@
 							"raw": "{\n  \"titulo\": \"Sistema fora do ar\",\n  \"descricao\": \"API Gateway não responde requisições\",\n  \"prioridade\": \"CRITICA\"\n}"
 						},
 						"url": {
-							"raw": "http://localhost:8080/api/bugs?projetoId=1",
+							"raw": "{{base_url}}/api/bugs?projetoId=1",
 							"protocol": "http",
 							"host": ["localhost"],
 							"port": "8080",
@@ -748,7 +746,7 @@
 					"request": {
 						"method": "PATCH",
 						"header": [],
-						"url": "http://localhost:8080/api/bugs/1/responsavel/1",
+						"url": "{{base_url}}/api/bugs/1/responsavel/1",
 						"description": "🔐 Requer ADMIN | Publica bug.responsavel.atribuido"
 					}
 				},
@@ -761,7 +759,7 @@
 							"mode": "raw",
 							"raw": "{\n  \"status\": \"EM_ANDAMENTO\"\n}"
 						},
-						"url": "http://localhost:8080/api/bugs/1/status",
+						"url": "{{base_url}}/api/bugs/1/status",
 						"description": "🔐 Requer ADMIN | Publica bug.status.alterado"
 					}
 				},
@@ -775,7 +773,7 @@
 							"raw": "{\n  \"texto\": \"Problema identificado no servidor Nginx\"\n}"
 						},
 						"url": {
-							"raw": "http://localhost:8080/api/comentarios?bugId=1&usuarioId=1",
+							"raw": "{{base_url}}/api/comentarios?bugId=1&usuarioId=1",
 							"protocol": "http",
 							"host": ["localhost"],
 							"port": "8080",
@@ -797,7 +795,7 @@
 							"mode": "raw",
 							"raw": "{\n  \"status\": \"RESOLVIDO\"\n}"
 						},
-						"url": "http://localhost:8080/api/bugs/1/status",
+						"url": "{{base_url}}/api/bugs/1/status",
 						"description": "🔐 Requer ADMIN | Publica bug.status.alterado"
 					}
 				}
@@ -810,6 +808,17 @@
 			"key": "token",
 			"value": "",
 			"type": "string"
+		},
+		{
+			"key": "base_url",
+			"value": "{{base_url}}",
+			"type": "string"
+		},
+		{
+			"key": "aws_url",
+			"value": "http://scizor-tracker-dev-alb-1487669364.us-east-1.elb.amazonaws.com",
+			"type": "string"
 		}
 	]
 }
+
