@@ -29,7 +29,6 @@ public class OpenApiConfig {
                                 - **Projetos** organizados por contexto
                                 - **Comentários** para colaboração em bugs
                                 - **Usuários** com controle de acesso
-                                - **Eventos Kafka** para notificações assíncronas
                                 
                                 ## Autenticação:
                                 1. Faça login em `/api/autenticar/login` com email e senha

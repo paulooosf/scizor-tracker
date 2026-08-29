@@ -1,9 +1,6 @@
 package app.vercel.paulooosf.scizor_tracker.service;
 
-import app.vercel.paulooosf.scizor_tracker.dto.evento.ComentarioAdicionadoEvento;
 import app.vercel.paulooosf.scizor_tracker.exception.ComentarioNaoEncontradoException;
-import app.vercel.paulooosf.scizor_tracker.messaging.TopicosKafka;
-import app.vercel.paulooosf.scizor_tracker.messaging.publicador.PublicadorEvento;
 import app.vercel.paulooosf.scizor_tracker.model.Bug;
 import app.vercel.paulooosf.scizor_tracker.model.Comentario;
 import app.vercel.paulooosf.scizor_tracker.model.Projeto;
@@ -43,9 +40,6 @@ class ComentarioServiceTest {
 
     @Mock
     private UsuarioService usuarioService;
-
-    @Mock
-    private PublicadorEvento publicadorEvento;
 
     @InjectMocks
     private ComentarioService comentarioService;
@@ -170,19 +164,6 @@ class ComentarioServiceTest {
         assertThat(resultado.getBug()).isEqualTo(bug);
         assertThat(resultado.getUsuario()).isEqualTo(usuario);
         assertThat(resultado.getDataComentario()).isNotNull();
-
-        ArgumentCaptor<ComentarioAdicionadoEvento> eventoCaptor = ArgumentCaptor.forClass(ComentarioAdicionadoEvento.class);
-        verify(publicadorEvento).publicar(
-            eq(TopicosKafka.COMENTARIO_ADICIONADO),
-            eq("1"),
-            eventoCaptor.capture()
-        );
-
-        ComentarioAdicionadoEvento evento = eventoCaptor.getValue();
-        assertThat(evento.bugId()).isEqualTo(1L);
-        assertThat(evento.comentarioId()).isEqualTo(2L);
-        assertThat(evento.autorEmail()).isEqualTo("joao@example.com");
-        assertThat(evento.responsavelBugEmail()).isNull(); // Bug sem responsável
     }
 
     @Test
@@ -203,16 +184,6 @@ class ComentarioServiceTest {
         Comentario resultado = comentarioService.criar(novoComentario, 1L, 1L);
 
         assertThat(resultado).isNotNull();
-
-        ArgumentCaptor<ComentarioAdicionadoEvento> eventoCaptor = ArgumentCaptor.forClass(ComentarioAdicionadoEvento.class);
-        verify(publicadorEvento).publicar(
-            eq(TopicosKafka.COMENTARIO_ADICIONADO),
-            eq("1"),
-            eventoCaptor.capture()
-        );
-
-        ComentarioAdicionadoEvento evento = eventoCaptor.getValue();
-        assertThat(evento.responsavelBugEmail()).isEqualTo("maria@example.com");
     }
 
     @Test

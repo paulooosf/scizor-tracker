@@ -210,7 +210,7 @@ public class BugController {
 
     @Operation(
         summary = "Criar novo bug",
-        description = "Cria um novo bug no sistema. **Requer permissão ADMIN**. Publica evento `bug.criado` no Kafka e `bug.critico` se prioridade for CRITICA."
+        description = "Cria um novo bug no sistema. **Requer permissão ADMIN**."
     )
     @ApiResponses(value = {
         @ApiResponse(responseCode = "201", description = "Bug criado com sucesso"),
@@ -260,7 +260,7 @@ public class BugController {
 
     @Operation(
         summary = "Atualizar status do bug",
-        description = "Altera o status de um bug. **Requer permissão ADMIN**. Publica evento `bug.status.alterado` no Kafka."
+        description = "Altera o status de um bug. **Requer permissão ADMIN**."
     )
     @ApiResponses(value = {
         @ApiResponse(responseCode = "200", description = "Status atualizado com sucesso"),
@@ -285,7 +285,7 @@ public class BugController {
 
     @Operation(
         summary = "Atribuir responsável ao bug",
-        description = "Atribui um usuário como responsável pelo bug. **Requer permissão ADMIN**. Publica evento `bug.responsavel.atribuido` no Kafka."
+        description = "Atribui um usuário como responsável pelo bug. **Requer permissão ADMIN**."
     )
     @ApiResponses(value = {
         @ApiResponse(responseCode = "200", description = "Responsável atribuído com sucesso"),

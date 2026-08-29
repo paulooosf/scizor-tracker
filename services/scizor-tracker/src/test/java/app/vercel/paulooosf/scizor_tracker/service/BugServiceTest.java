@@ -1,14 +1,9 @@
 package app.vercel.paulooosf.scizor_tracker.service;
 
-import app.vercel.paulooosf.scizor_tracker.dto.evento.BugCriadoEvento;
-import app.vercel.paulooosf.scizor_tracker.dto.evento.BugResponsavelAtribuidoEvento;
-import app.vercel.paulooosf.scizor_tracker.dto.evento.BugStatusAlteradoEvento;
 import app.vercel.paulooosf.scizor_tracker.enums.Prioridade;
 import app.vercel.paulooosf.scizor_tracker.enums.StatusBug;
 import app.vercel.paulooosf.scizor_tracker.exception.BugNaoEncontradoException;
 import app.vercel.paulooosf.scizor_tracker.exception.StatusInvalidoException;
-import app.vercel.paulooosf.scizor_tracker.messaging.TopicosKafka;
-import app.vercel.paulooosf.scizor_tracker.messaging.publicador.PublicadorEvento;
 import app.vercel.paulooosf.scizor_tracker.model.Bug;
 import app.vercel.paulooosf.scizor_tracker.model.Projeto;
 import app.vercel.paulooosf.scizor_tracker.model.Usuario;
@@ -46,9 +41,6 @@ class BugServiceTest {
 
     @Mock
     private UsuarioService usuarioService;
-
-    @Mock
-    private PublicadorEvento publicadorEvento;
 
     @InjectMocks
     private BugService bugService;
@@ -137,19 +129,6 @@ class BugServiceTest {
         assertThat(resultado.getStatus()).isEqualTo(StatusBug.ABERTO);
         assertThat(resultado.getDataCriacao()).isNotNull();
         assertThat(resultado.getDataAtualizacao()).isNotNull();
-
-        ArgumentCaptor<BugCriadoEvento> eventoCaptor = ArgumentCaptor.forClass(BugCriadoEvento.class);
-        verify(publicadorEvento).publicar(
-            eq(TopicosKafka.BUG_CRIADO),
-            eq("2"),
-            eventoCaptor.capture()
-        );
-
-        BugCriadoEvento evento = eventoCaptor.getValue();
-        assertThat(evento.bugId()).isEqualTo(2L);
-        assertThat(evento.titulo()).isEqualTo("Novo bug");
-        assertThat(evento.prioridade()).isEqualTo(Prioridade.MEDIA);
-        assertThat(evento.projetoId()).isEqualTo(1L);
     }
 
     @Test
@@ -180,18 +159,6 @@ class BugServiceTest {
         Bug resultado = bugService.atualizarStatus(1L, StatusBug.EM_ANDAMENTO);
 
         assertThat(resultado.getStatus()).isEqualTo(StatusBug.EM_ANDAMENTO);
-
-        ArgumentCaptor<BugStatusAlteradoEvento> eventoCaptor = ArgumentCaptor.forClass(BugStatusAlteradoEvento.class);
-        verify(publicadorEvento).publicar(
-            eq(TopicosKafka.BUG_STATUS_ALTERADO),
-            eq("1"),
-            eventoCaptor.capture()
-        );
-
-        BugStatusAlteradoEvento evento = eventoCaptor.getValue();
-        assertThat(evento.bugId()).isEqualTo(1L);
-        assertThat(evento.statusAnterior()).isEqualTo(StatusBug.ABERTO);
-        assertThat(evento.statusNovo()).isEqualTo(StatusBug.EM_ANDAMENTO);
     }
 
     @Test
@@ -227,17 +194,8 @@ class BugServiceTest {
 
         assertThat(resultado.getUsuarioResponsavel()).isEqualTo(usuario);
 
-        ArgumentCaptor<BugResponsavelAtribuidoEvento> eventoCaptor = ArgumentCaptor.forClass(BugResponsavelAtribuidoEvento.class);
-        verify(publicadorEvento).publicar(
-            eq(TopicosKafka.BUG_RESPONSAVEL_ATRIBUIDO),
-            eq("1"),
-            eventoCaptor.capture()
-        );
-
-        BugResponsavelAtribuidoEvento evento = eventoCaptor.getValue();
-        assertThat(evento.bugId()).isEqualTo(1L);
-        assertThat(evento.responsavelId()).isEqualTo(1L);
-        assertThat(evento.responsavelEmail()).isEqualTo("joao@example.com");
+        assertThat(resultado.getUsuarioResponsavel()).isEqualTo(usuario);
+        verify(bugRepository).save(bug);
     }
 
     @Test

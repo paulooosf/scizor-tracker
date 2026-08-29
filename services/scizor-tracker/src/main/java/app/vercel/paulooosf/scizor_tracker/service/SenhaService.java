@@ -27,7 +27,7 @@ public class SenhaService {
         Usuario usuario = usuarioRepository.findByEmail(dto.email())
                 .orElseThrow(() -> new UsuarioNaoEncontradoException("Usuário não encontrado com o email: " + dto.email()));
 
-        // TODO: Integrar com serviço de email (SES/SNS) via Kafka consumer
+        // TODO: Integrar com serviço de email (SES/SNS)
         // Por enquanto retorna o token para testes
         return tokenService.gerarTokenSenha(usuario.getEmail());
     }

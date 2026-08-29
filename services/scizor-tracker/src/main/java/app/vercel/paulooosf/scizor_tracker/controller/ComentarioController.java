@@ -121,7 +121,7 @@ public class ComentarioController {
 
     @Operation(
         summary = "Criar novo comentário",
-        description = "Adiciona um novo comentário a um bug. **Requer permissão ADMIN**. Publica evento `comentario.adicionado` no Kafka."
+        description = "Adiciona um novo comentário a um bug. **Requer permissão ADMIN**."
     )
     @ApiResponses(value = {
         @ApiResponse(responseCode = "201", description = "Comentário criado com sucesso"),
