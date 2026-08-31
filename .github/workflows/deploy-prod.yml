@@ -91,13 +91,34 @@ jobs:
           ECS_CLUSTER: ${{ secrets.ECS_CLUSTER }}
           ECS_SERVICE: ${{ secrets.ECS_SERVICE }}
         run: |
-          echo "Aguardando deployment estabilizar (timeout: 15 minutos)..."
-          aws ecs wait services-stable \
-            --cluster $ECS_CLUSTER \
-            --services $ECS_SERVICE \
-            --cli-read-timeout 900 \
-            --waiter-delay 15 \
-            --waiter-max-attempts 60
+          echo "Aguardando deployment estabilizar (máximo 15 minutos)..."
+          
+          # Aguardar até 60 tentativas (15s cada = 15 minutos total)
+          for i in {1..60}; do
+            echo "Tentativa $i/60: Verificando status do deployment..."
+            
+            DEPLOYMENT_STATUS=$(aws ecs describe-services \
+              --cluster $ECS_CLUSTER \
+              --services $ECS_SERVICE \
+              --query 'services[0].deployments[0].rolloutState' \
+              --output text)
+            
+            echo "Status atual: $DEPLOYMENT_STATUS"
+            
+            if [ "$DEPLOYMENT_STATUS" = "COMPLETED" ]; then
+              echo "Deployment completado!"
+              exit 0
+            elif [ "$DEPLOYMENT_STATUS" = "FAILED" ]; then
+              echo "Deployment falhou!"
+              exit 1
+            fi
+            
+            echo "Aguardando 15 segundos..."
+            sleep 15
+          done
+          
+          echo "Timeout: Deployment não completou em 15 minutos"
+          exit 1
 
       - name: Verificar status do deployment
         env:
