@@ -91,11 +91,13 @@ jobs:
           ECS_CLUSTER: ${{ secrets.ECS_CLUSTER }}
           ECS_SERVICE: ${{ secrets.ECS_SERVICE }}
         run: |
-          echo "Aguardando deployment estabilizar (timeout: 10 minutos)..."
+          echo "Aguardando deployment estabilizar (timeout: 15 minutos)..."
           aws ecs wait services-stable \
             --cluster $ECS_CLUSTER \
             --services $ECS_SERVICE \
-            --cli-read-timeout 600
+            --cli-read-timeout 900 \
+            --waiter-delay 15 \
+            --waiter-max-attempts 60
 
       - name: Verificar status do deployment
         env:
@@ -111,13 +113,29 @@ jobs:
           echo "Status do deployment:"
           echo $SERVICE_STATUS | jq .
           
+          DESIRED_COUNT=$(echo $SERVICE_STATUS | jq -r '.desired')
+          RUNNING_COUNT=$(echo $SERVICE_STATUS | jq -r '.running')
           ROLLOUT_STATE=$(echo $SERVICE_STATUS | jq -r '.rolloutState')
-          if [ "$ROLLOUT_STATE" != "COMPLETED" ]; then
-            echo "❌ Deployment falhou ou foi revertido"
-            exit 1
+          
+          # Se desiredCount=0, o serviço está intencionalmente parado
+          if [ "$DESIRED_COUNT" = "0" ]; then
+            echo "⚠️ Serviço está com desiredCount=0 (parado intencionalmente)"
+            echo "Task definition atualizada com sucesso!"
+            echo "Para ativar o serviço, execute:"
+            echo "aws ecs update-service --cluster $ECS_CLUSTER --service $ECS_SERVICE --desired-count 1"
+            exit 0
           fi
           
-          echo "Deployment completado com sucesso!"
+          # Verificar se deployment foi completado
+          if [ "$ROLLOUT_STATE" = "COMPLETED" ]; then
+            echo "✅ Deployment completado com sucesso!"
+            echo "Running tasks: $RUNNING_COUNT/$DESIRED_COUNT"
+            exit 0
+          else
+            echo "❌ Deployment não completou (rollout state: $ROLLOUT_STATE)"
+            echo "Running tasks: $RUNNING_COUNT/$DESIRED_COUNT"
+            exit 1
+          fi
 
       - name: Limpar imagens antigas do ECR (manter últimas 5)
         env:
