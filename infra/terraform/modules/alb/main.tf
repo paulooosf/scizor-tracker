@@ -50,8 +50,8 @@ resource "aws_lb_target_group" "app" {
     port                = "traffic-port"         # Mesma porta do trafego
     protocol            = "HTTP"
     healthy_threshold   = 2    # 2 checks OK = healthy
-    unhealthy_threshold = 3    # 3 checks FAIL = unhealthy
-    timeout             = 5    # Timeout de 5 segundos
+    unhealthy_threshold = 5    # 5 checks FAIL = unhealthy (tolerância para app lenta)
+    timeout             = 10   # Timeout de 10 segundos (app leva ~60s para iniciar)
     interval            = 30   # Verifica a cada 30 segundos
     matcher             = "200"  # HTTP 200 = OK
   }

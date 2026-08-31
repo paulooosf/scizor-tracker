@@ -194,6 +194,9 @@ resource "aws_ecs_service" "app" {
   desired_count   = var.desired_count
   launch_type     = "FARGATE"
 
+  # Grace period para health checks (tempo para app iniciar antes de ser considerada unhealthy)
+  health_check_grace_period_seconds = 180  # 3 minutos (app leva ~60s + margem)
+
   # Estratégia de deployment
   deployment_minimum_healthy_percent = 50   # Mínimo 50% de tasks saudáveis
   deployment_maximum_percent         = 200  # Máximo 200% durante deploy (pode ter 2x tasks)
