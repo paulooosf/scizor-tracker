@@ -12,7 +12,6 @@ RUN ./mvnw clean package -DskipTests
 FROM eclipse-temurin:21-jre-alpine
 WORKDIR /app
 
-# Instalar curl para health checks
 RUN apk add --no-cache curl
 
 COPY --from=build /app/target/*.jar app.jar
