@@ -1,0 +1,141 @@
+name: Deploy to AWS ECS (Prod)
+
+on:
+  push:
+    branches:
+      - prod
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout código
+        uses: actions/checkout@v4
+
+      - name: Configurar Java 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          cache: 'maven'
+
+      - name: Build com Maven
+        working-directory: ./services/scizor-tracker
+        run: mvn clean package -DskipTests
+
+      - name: Rodar testes unitários
+        working-directory: ./services/scizor-tracker
+        run: mvn test
+
+      - name: Configurar credenciais AWS
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
+
+      - name: Login no Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Build e push da imagem Docker
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          ECR_REPOSITORY: ${{ secrets.ECR_REPOSITORY }}
+          IMAGE_TAG: ${{ github.sha }}
+        working-directory: ./services/scizor-tracker
+        run: |
+          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG -f Dockerfile .
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+          docker tag $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG $ECR_REGISTRY/$ECR_REPOSITORY:latest
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:latest
+
+      - name: Atualizar task definition e forçar novo deployment
+        env:
+          ECS_CLUSTER: ${{ secrets.ECS_CLUSTER }}
+          ECS_SERVICE: ${{ secrets.ECS_SERVICE }}
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          ECR_REPOSITORY: ${{ secrets.ECR_REPOSITORY }}
+          IMAGE_TAG: ${{ github.sha }}
+        run: |
+          # Obter task definition atual
+          TASK_DEFINITION=$(aws ecs describe-task-definition \
+            --task-definition $(aws ecs describe-services \
+              --cluster $ECS_CLUSTER \
+              --services $ECS_SERVICE \
+              --query 'services[0].taskDefinition' \
+              --output text | cut -d'/' -f2) \
+            --query 'taskDefinition' \
+            --output json)
+          
+          # Atualizar imagem na task definition
+          NEW_TASK_DEF=$(echo $TASK_DEFINITION | jq --arg IMAGE "$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG" \
+            '.containerDefinitions[0].image = $IMAGE | 
+             del(.taskDefinitionArn, .revision, .status, .requiresAttributes, .compatibilities, .registeredAt, .registeredBy)')
+          
+          # Registrar nova task definition
+          NEW_TASK_INFO=$(aws ecs register-task-definition --cli-input-json "$NEW_TASK_DEF")
+          NEW_REVISION=$(echo $NEW_TASK_INFO | jq -r '.taskDefinition.revision')
+          
+          # Atualizar serviço com nova task definition
+          aws ecs update-service \
+            --cluster $ECS_CLUSTER \
+            --service $ECS_SERVICE \
+            --task-definition $(echo $NEW_TASK_INFO | jq -r '.taskDefinition.family'):$NEW_REVISION \
+            --force-new-deployment
+
+      - name: Aguardar deployment estabilizar
+        env:
+          ECS_CLUSTER: ${{ secrets.ECS_CLUSTER }}
+          ECS_SERVICE: ${{ secrets.ECS_SERVICE }}
+        run: |
+          echo "Aguardando deployment estabilizar (timeout: 10 minutos)..."
+          aws ecs wait services-stable \
+            --cluster $ECS_CLUSTER \
+            --services $ECS_SERVICE \
+            --cli-read-timeout 600
+
+      - name: Verificar status do deployment
+        env:
+          ECS_CLUSTER: ${{ secrets.ECS_CLUSTER }}
+          ECS_SERVICE: ${{ secrets.ECS_SERVICE }}
+        run: |
+          SERVICE_STATUS=$(aws ecs describe-services \
+            --cluster $ECS_CLUSTER \
+            --services $ECS_SERVICE \
+            --query 'services[0].deployments[0].{status:status,desired:desiredCount,running:runningCount,rolloutState:rolloutState}' \
+            --output json)
+          
+          echo "Status do deployment:"
+          echo $SERVICE_STATUS | jq .
+          
+          ROLLOUT_STATE=$(echo $SERVICE_STATUS | jq -r '.rolloutState')
+          if [ "$ROLLOUT_STATE" != "COMPLETED" ]; then
+            echo "❌ Deployment falhou ou foi revertido"
+            exit 1
+          fi
+          
+          echo "Deployment completado com sucesso!"
+
+      - name: Limpar imagens antigas do ECR (manter últimas 5)
+        env:
+          ECR_REPOSITORY: ${{ secrets.ECR_REPOSITORY }}
+        run: |
+          # Listar imagens e deletar as mais antigas, mantendo as 5 mais recentes
+          IMAGES_TO_DELETE=$(aws ecr list-images \
+            --repository-name $ECR_REPOSITORY \
+            --query 'imageIds[?imageTag!=`latest`]' \
+            --output json | jq -r 'sort_by(.imagePushedAt) | reverse | .[5:] | .[] | .imageDigest')
+          
+          if [ ! -z "$IMAGES_TO_DELETE" ]; then
+            echo "Deletando imagens antigas..."
+            for digest in $IMAGES_TO_DELETE; do
+              aws ecr batch-delete-image \
+                --repository-name $ECR_REPOSITORY \
+                --image-ids imageDigest=$digest || true
+            done
+          else
+            echo "Nenhuma imagem antiga para deletar"
+          fi
