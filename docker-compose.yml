@@ -77,7 +77,6 @@ services:
     networks:
       - scizor-network
     restart: unless-stopped
-
   kafka-ui:
     image: provectuslabs/kafka-ui:latest
     container_name: scizor-kafka-ui
@@ -133,6 +132,27 @@ services:
     restart: unless-stopped
     depends_on:
       - prometheus
+
+  localstack:
+    image: localstack/localstack:3.0
+    container_name: scizor-localstack
+    environment:
+      - SERVICES=lambda,sns,sqs,ses,logs
+      - DEBUG=1
+      - LAMBDA_EXECUTOR=docker
+      - DOCKER_HOST=unix:///var/run/docker.sock
+      - LAMBDA_REMOVE_CONTAINERS=true
+      - EAGER_SERVICE_LOADING=1
+    ports:
+      - "4566:4566"
+      - "4571:4571"
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock"
+      - ./localstack-init:/etc/localstack/init/ready.d
+      - ./lambda/notificacao-email:/docker-entrypoint-initaws.d
+    networks:
+      - scizor-network
+    restart: unless-stopped
 
 volumes:
   postgres_data:
