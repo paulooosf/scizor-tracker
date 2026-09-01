@@ -4,6 +4,7 @@ import app.vercel.paulooosf.scizor_tracker.dto.evento.BugCriadoEvento;
 import app.vercel.paulooosf.scizor_tracker.dto.evento.BugResponsavelAtribuidoEvento;
 import app.vercel.paulooosf.scizor_tracker.dto.evento.BugStatusAlteradoEvento;
 import app.vercel.paulooosf.scizor_tracker.dto.evento.ComentarioAdicionadoEvento;
+import app.vercel.paulooosf.scizor_tracker.dto.evento.SenhaRedefinicaoSolicitadaEvento;
 import app.vercel.paulooosf.scizor_tracker.messaging.GruposConsumidores;
 import app.vercel.paulooosf.scizor_tracker.messaging.TopicosKafka;
 import app.vercel.paulooosf.scizor_tracker.service.NotificacaoSnsService;
@@ -65,6 +66,18 @@ public class NotificacaoConsumer {
         
         try {
             notificacaoSnsService.publicarEvento(evento, "Novo Comentário");
+            log.info("Evento publicado no SNS com sucesso");
+        } catch (Exception e) {
+            log.error("Erro ao publicar no SNS: {}", e.getMessage());
+        }
+    }
+
+    @KafkaListener(topics = TopicosKafka.SENHA_REDEFINICAO_SOLICITADA, groupId = GruposConsumidores.NOTIFICACAO)
+    public void notificarRedefinicaoSenha(SenhaRedefinicaoSolicitadaEvento evento) {
+        log.info("Kafka recebeu senha.redefinicao.solicitada: Email {}", evento.email());
+        
+        try {
+            notificacaoSnsService.publicarEvento(evento, "Redefinição de Senha Solicitada");
             log.info("Evento publicado no SNS com sucesso");
         } catch (Exception e) {
             log.error("Erro ao publicar no SNS: {}", e.getMessage());

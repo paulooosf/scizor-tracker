@@ -96,7 +96,7 @@ public class AutenticacaoController {
         String token = senhaService.solicitarRedefinicaoSenha(dto);
 
         return ResponseEntity.ok(Map.of("token", token, 
-            "mensagem", "Token gerado. Em produção será enviado por email."));
+            "mensagem", "Token gerado e enviado via e-mail."));
     }
 
     @Operation(

@@ -7,6 +7,7 @@ public final class TopicosKafka {
     public static final String BUG_RESPONSAVEL_ATRIBUIDO = "bug.responsavel.atribuido";
     public static final String COMENTARIO_ADICIONADO = "comentario.adicionado";
     public static final String BUG_CRITICO = "bug.critico";
+    public static final String SENHA_REDEFINICAO_SOLICITADA = "senha.redefinicao.solicitada";
 
     private TopicosKafka() {
     }
