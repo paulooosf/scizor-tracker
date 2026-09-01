@@ -56,6 +56,15 @@ api:
     token:
       secret: ${JWT_SECRET:scizor-tracker-secret-key-change-in-production-2026}
 
+aws:
+  region: us-east-1
+  endpoint: http://localstack:4566
+  sns:
+    topic-arn: arn:aws:sns:us-east-1:000000000000:bug-notificacoes
+  credentials:
+    access-key: test
+    secret-key: test
+
 server:
   port: 8080
 
