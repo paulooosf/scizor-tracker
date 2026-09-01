@@ -16,9 +16,6 @@ public record ProjetoEntradaDto(
     @Size(max = 5000, message = "Descrição deve ter no máximo 5000 caracteres!")
     String descricao
 ) {
-    public ProjetoEntradaDto(Projeto projeto) {
-        this(projeto.getNome(), projeto.getDescricao());
-    }
 
     public Projeto converter() {
         return new Projeto(nome, descricao);

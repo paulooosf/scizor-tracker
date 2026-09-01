@@ -12,9 +12,6 @@ public record ComentarioEntradaDto(
     @Size(min = 1, max = 5000, message = "Texto deve ter entre 1 e 5000 caracteres!")
     String texto
 ) {
-    public ComentarioEntradaDto(Comentario comentario) {
-        this(comentario.getTexto());
-    }
 
     public Comentario converter() {
         Comentario comentario = new Comentario();

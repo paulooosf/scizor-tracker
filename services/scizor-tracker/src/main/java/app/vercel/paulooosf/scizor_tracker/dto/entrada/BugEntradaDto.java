@@ -22,9 +22,6 @@ public record BugEntradaDto(
     @NotNull(message = "Preencha a prioridade!")
     Prioridade prioridade
 ) {
-    public BugEntradaDto(Bug bug) {
-        this(bug.getTitulo(), bug.getDescricao(), bug.getPrioridade());
-    }
 
     public Bug converter() {
         Bug bug = new Bug();

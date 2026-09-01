@@ -19,7 +19,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import java.util.List;
 
 @Service
 public class BugService {
@@ -50,15 +49,6 @@ public class BugService {
     public Bug buscarPorId(Long id) {
         return bugRepository.findByIdComRelacionamentos(id)
             .orElseThrow(() -> new BugNaoEncontradoException(id));
-    }
-
-    @Transactional(readOnly = true)
-    public Bug buscarPorIdComComentarios(Long id) {
-        Bug bug = bugRepository.findByIdComComentarios(id);
-        if (bug == null) {
-            throw new BugNaoEncontradoException(id);
-        }
-        return bug;
     }
 
     @Transactional(readOnly = true)

@@ -24,9 +24,6 @@ public record UsuarioEntradaDto(
     @Size(min = 6, message = "Senha deve ter no mínimo 6 caracteres!")
     String senha
 ) {
-    public UsuarioEntradaDto(Usuario usuario) {
-        this(usuario.getNome(), usuario.getEmail(), usuario.getSenha());
-    }
 
     public Usuario converter() {
         return new Usuario(nome, email, senha);

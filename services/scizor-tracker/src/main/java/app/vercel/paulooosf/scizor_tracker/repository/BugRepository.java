@@ -47,36 +47,6 @@ public interface BugRepository extends JpaRepository<Bug, Long> {
            countQuery = "SELECT COUNT(b) FROM Bug b WHERE LOWER(b.titulo) LIKE LOWER(CONCAT('%', :termo, '%')) OR LOWER(b.descricao) LIKE LOWER(CONCAT('%', :termo, '%'))")
     Page<Bug> buscarPorTermo(@Param("termo") String termo, Pageable pageable);
 
-    @Query("SELECT b FROM Bug b LEFT JOIN FETCH b.projeto LEFT JOIN FETCH b.usuarioResponsavel WHERE b.projeto.id = :projetoId")
-    List<Bug> findByProjetoIdComRelacionamentos(@Param("projetoId") Long projetoId);
-
-    @Query("SELECT b FROM Bug b LEFT JOIN FETCH b.projeto LEFT JOIN FETCH b.usuarioResponsavel WHERE b.status = :status")
-    List<Bug> findByStatusComRelacionamentos(@Param("status") StatusBug status);
-
-    @Query("SELECT b FROM Bug b LEFT JOIN FETCH b.projeto LEFT JOIN FETCH b.usuarioResponsavel WHERE b.prioridade = :prioridade")
-    List<Bug> findByPrioridadeComRelacionamentos(@Param("prioridade") Prioridade prioridade);
-
-    @Query("SELECT b FROM Bug b LEFT JOIN FETCH b.projeto LEFT JOIN FETCH b.usuarioResponsavel WHERE b.usuarioResponsavel.id = :usuarioId")
-    List<Bug> findByUsuarioResponsavelIdComRelacionamentos(@Param("usuarioId") Long usuarioId);
-
-    @Query("SELECT b FROM Bug b LEFT JOIN FETCH b.projeto LEFT JOIN FETCH b.usuarioResponsavel WHERE b.usuarioResponsavel IS NULL")
-    List<Bug> buscarBugsSemResponsavelComRelacionamentos();
-
-    @Query("SELECT b FROM Bug b LEFT JOIN FETCH b.projeto LEFT JOIN FETCH b.usuarioResponsavel WHERE LOWER(b.titulo) LIKE LOWER(CONCAT('%', :termo, '%')) OR LOWER(b.descricao) LIKE LOWER(CONCAT('%', :termo, '%'))")
-    List<Bug> buscarPorTermoComRelacionamentos(@Param("termo") String termo);
-
     @Query("SELECT b FROM Bug b LEFT JOIN FETCH b.comentarios WHERE b.id = :id")
     Bug findByIdComComentarios(Long id);
-
-    @Query("SELECT COUNT(b) FROM Bug b WHERE b.projeto.id = :projetoId AND b.status = :status")
-    Long contarBugsPorProjetoEStatus(@Param("projetoId") Long projetoId, @Param("status") StatusBug status);
-
-    List<Bug> findByProjetoIdAndStatus(Long projetoId, StatusBug status);
-
-    @Query("SELECT b FROM Bug b WHERE b.projeto.id = :projetoId AND b.status = :status AND b.prioridade = :prioridade")
-    List<Bug> buscarPorProjetoStatusEPrioridade(
-        @Param("projetoId") Long projetoId,
-        @Param("status") StatusBug status,
-        @Param("prioridade") Prioridade prioridade
-    );
 }

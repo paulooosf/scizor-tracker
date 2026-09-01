@@ -47,8 +47,4 @@ public class NotificacaoSnsService {
             throw new RuntimeException("Falha ao publicar notificação", e);
         }
     }
-
-    public void publicarEvento(Object evento) {
-        publicarEvento(evento, null);
-    }
 }

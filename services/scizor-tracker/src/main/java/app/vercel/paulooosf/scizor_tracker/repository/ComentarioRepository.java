@@ -29,12 +29,6 @@ public interface ComentarioRepository extends JpaRepository<Comentario, Long> {
            countQuery = "SELECT COUNT(c) FROM Comentario c WHERE c.usuario.id = :usuarioId")
     Page<Comentario> findByUsuarioId(@Param("usuarioId") Long usuarioId, Pageable pageable);
 
-    @Query("SELECT c FROM Comentario c LEFT JOIN FETCH c.usuario WHERE c.bug.id = :bugId ORDER BY c.dataComentario DESC")
-    List<Comentario> buscarComentariosPorBugOrdenadosPorDataComRelacionamentos(@Param("bugId") Long bugId);
-
-    @Query("SELECT c FROM Comentario c LEFT JOIN FETCH c.bug WHERE c.usuario.id = :usuarioId")
-    List<Comentario> findByUsuarioIdComRelacionamentos(@Param("usuarioId") Long usuarioId);
-
     @Query("SELECT COUNT(c) FROM Comentario c WHERE c.bug.id = :bugId")
     Long contarComentariosPorBug(@Param("bugId") Long bugId);
 }

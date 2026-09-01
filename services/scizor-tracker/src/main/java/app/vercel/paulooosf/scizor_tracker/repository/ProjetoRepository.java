@@ -12,8 +12,6 @@ import java.util.List;
 @Repository
 public interface ProjetoRepository extends JpaRepository<Projeto, Long> {
 
-    List<Projeto> findByNomeContainingIgnoreCase(String nome);
-
     Page<Projeto> findByNomeContainingIgnoreCase(String nome, Pageable pageable);
 
     @Query("SELECT p FROM Projeto p LEFT JOIN FETCH p.bugs WHERE p.id = :id")
